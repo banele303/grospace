@@ -11,7 +11,7 @@ export async function GET(
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        vendor: true
+        vendors: true
       }
     });
 
@@ -26,7 +26,7 @@ export async function GET(
       lastName: user.lastName,
       role: user.role,
       isActive: user.isActive,
-      vendor: user.vendor,
+      vendors: user.vendors,
       rawData: user // Include raw data for debugging
     });
   } catch (error) {
