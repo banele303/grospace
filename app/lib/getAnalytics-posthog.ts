@@ -63,7 +63,7 @@ export async function getAnalyticsData(startDate?: Date, endDate?: Date) {
   const orders = await prisma.order.findMany({
     where: whereClause,
     include: {
-      items: {
+      orderItems: {
         include: {
           product: true,
         },
@@ -82,7 +82,7 @@ export async function getAnalyticsData(startDate?: Date, endDate?: Date) {
     },
   });
 
-  const totalRevenue = orders.reduce((sum, order) => sum + order.amount, 0);
+  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
   const totalOrders = orders.length;
 
   // Calculate daily revenue and orders
@@ -91,7 +91,7 @@ export async function getAnalyticsData(startDate?: Date, endDate?: Date) {
     if (!acc[date]) {
       acc[date] = { revenue: 0, orders: 0 };
     }
-    acc[date].revenue += order.amount;
+    acc[date].revenue += order.total;
     acc[date].orders += 1;
     return acc;
   }, {} as Record<string, { revenue: number; orders: number }>);
@@ -382,12 +382,12 @@ export async function getAnalyticsData(startDate?: Date, endDate?: Date) {
         lte: previousEndDate,
       },
     },
-    _sum: { amount: true },
+    _sum: { total: true },
   });
 
   const growthMetrics = {
-    revenueGrowth: previousRevenue._sum.amount ? 
-      ((totalRevenue - previousRevenue._sum.amount) / previousRevenue._sum.amount) * 100 : 0,
+    revenueGrowth: previousRevenue._sum.total ? 
+      ((totalRevenue - previousRevenue._sum.total) / previousRevenue._sum.total) * 100 : 0,
     orderGrowth: previousOrders ? 
       ((totalOrders - previousOrders) / previousOrders) * 100 : 0,
     trafficGrowth: 15.0, // Estimated growth when PostHog data is not available for comparison

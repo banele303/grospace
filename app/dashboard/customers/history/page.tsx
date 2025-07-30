@@ -341,7 +341,7 @@ export default async function CustomersHistoryPage() {
                         {customer.orders.slice(0, 3).map((order: any) => (
                           <div key={order.id} className="flex justify-between">
                             <span>#{order.id.slice(-6)}</span>
-                            <span>R{(order.amount / 100).toFixed(2)}</span>
+                            <span>R{(order.total / 100).toFixed(2)}</span>
                           </div>
                         ))}
                       </div>

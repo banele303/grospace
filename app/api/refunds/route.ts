@@ -21,7 +21,7 @@ export async function GET(req: Request) {
       include: {
         order: {
           select: {
-            amount: true,
+            total: true,
             userId: true
           },
         },
@@ -31,11 +31,14 @@ export async function GET(req: Request) {
       },
     });
 
-    // Transform the data to include the amount from the order
+    // Transform the data to include the total from the order
     const transformedRefunds = refunds.map((refund) => ({
       ...refund,
       userId: refund.order.userId,
-      amount: refund.order.amount,
+      order: {
+        ...refund.order,
+        total: refund.order.total,
+      },
     })) as Refund[];
 
     return NextResponse.json(transformedRefunds);

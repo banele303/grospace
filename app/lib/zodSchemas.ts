@@ -140,14 +140,14 @@ export const refundSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   order: z.object({
-    amount: z.number(),
+    total: z.number(),
   }),
 });
 
 export const OrderSchema = z.object({
   id: z.string(),
   userId: z.string(),
-  amount: z.number(),
+  total: z.number(),
   createdAt: z.date(),
   updatedAt: z.date(),
   orderItems: z.array(z.object({
