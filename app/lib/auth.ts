@@ -1,11 +1,27 @@
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { prisma } from "@/lib/db";
 
-// Define UserRole enum locally
+// Define UserRole enum locally - must match schema
 export enum UserRole {
   ADMIN = "ADMIN",
   VENDOR = "VENDOR",
-  USER = "USER"
+  BUYER = "BUYER"
+}
+
+// Define UserStatus enum locally - must match schema
+export enum UserStatus {
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  BLOCKED = "BLOCKED",
+  SUSPENDED = "SUSPENDED"
+}
+
+// Define VendorStatus enum locally - must match schema
+export enum VendorStatus {
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  BLOCKED = "BLOCKED",
+  SUSPENDED = "SUSPENDED"
 }
 
 export async function getCurrentUser(includeVendor: boolean = false) {
@@ -81,11 +97,11 @@ export async function requireVendor() {
     throw new Error("Your account is inactive. Please contact support.");
   }
 
-  if (user.accountStatus === 'PENDING') {
+  if (user.accountStatus === UserStatus.PENDING) {
     throw new Error("Your account is pending approval. Please wait for admin approval.");
   }
 
-  if (user.accountStatus === 'BLOCKED') {
+  if (user.accountStatus === UserStatus.BLOCKED) {
     const reason = user.blockedReason ? ` Reason: ${user.blockedReason}` : '';
     throw new Error(`Your account has been blocked.${reason}`);
   }

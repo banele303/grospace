@@ -36,7 +36,10 @@ export async function GET(request: NextRequest) {
 
     const where: any = {};
     if (status && status !== 'ALL') {
-      where.accountStatus = status;
+      // Make sure status is a valid UserStatus enum value
+      if (['PENDING', 'APPROVED', 'BLOCKED', 'SUSPENDED'].includes(status)) {
+        where.accountStatus = status;
+      }
     }
 
     const [users, total] = await Promise.all([
