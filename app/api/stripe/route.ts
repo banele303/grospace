@@ -30,13 +30,13 @@ export async function POST(req: Request) {
         return new Response('User ID not found', { status: 400 });
       }
 
-      await prisma.order.create({
-        data: {
-          amount: session.amount_total as number,
-          status: session.status as string,
-          userId: session.metadata.userId,
-        },
-      });
+      // await prisma.order.create({
+      //   data: {
+      //     amount: session.amount_total as number,
+      //     status: session.status as string,
+      //     userId: session.metadata.userId,
+      //   },
+      // });
 
       await redis.del(`cart-${session.metadata?.userId}`);
 
