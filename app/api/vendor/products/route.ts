@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate a unique SKU if not provided
-    const generateSKU = async () => {
+    const generateSKU = async (): Promise<string> => {
       // Create SKU based on product name and random string
       const prefix = validatedData.name
         .substring(0, 3)
