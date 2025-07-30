@@ -89,7 +89,7 @@ async function getVendorEarnings(vendorId: string) {
   };
 
   // Get actual payout data from database
-  let payouts = [];
+  let payouts: VendorPayout[] = [];
   try {
     // @ts-ignore - This will work once the VendorPayout model is added to the schema
     payouts = await prisma.vendorPayout?.findMany({
