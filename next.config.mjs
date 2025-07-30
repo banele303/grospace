@@ -1,10 +1,32 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ['@kinde/js-utils'],
+  experimental: {
+    serverComponentsExternalPackages: ['@kinde-oss/kinde-auth-nextjs'],
+    optimizePackageImports: ['lucide-react'],
+  },
+  webpack: (config, { isServer }) => {
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      'expo-secure-store': false,
+    };
+    return config;
+  },
   images: {
     remotePatterns: [
       {
         protocol: "https",
         hostname: "utfs.io",
+        port: "",
+      },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        port: "",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
         port: "",
       },
     ],
@@ -16,14 +38,14 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
-  experimental: {
-    optimizePackageImports: ['lucide-react'],
-  },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   poweredByHeader: false,
   compress: true,
+  async redirects() {
+    return [];
+  },
 };
 
 export default nextConfig;

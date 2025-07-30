@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "generate": "prisma generate",
+    "postinstall": "prisma generate",
     "test-articles": "npx tsx scripts/test-articles.ts",
     "update-user-statuses": "npx tsx scripts/update-user-statuses.ts"
   },
