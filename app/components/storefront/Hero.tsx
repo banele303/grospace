@@ -18,7 +18,7 @@ export function Hero({ data }: { data: BannerData[] }) {
         <CarouselContent>
           {data.map((item: BannerData) => (
             <CarouselItem key={item.id}>
-              <div className="relative h-[60vh] lg:h-[85vh] overflow-hidden rounded-2xl group">
+              <div className="relative h-[60vh] lg:h-[90vh] overflow-hidden rounded-2xl group">
                 {/* Background Image with Overlay */}
                 <Image
                   alt="Banner Image"
