@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     // Find the user
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: { vendor: true },
+      include: { vendors: true },
     });
 
     if (!user) {
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     if (imageType === "store") {
       // If no vendor exists yet, this is for a new store being created
       // Just return success - the image URL will be passed in the store creation request
-      if (!user.vendor) {
+      if (!user.vendors || user.vendors.length === 0) {
         return NextResponse.json({ 
           success: true, 
           message: "Store image received for new store creation" 
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       if (vendorId) {
         await prisma.vendor.update({
           where: { id: vendorId },
-          data: { storeImageUrl: imageUrl },
+          data: { logo: imageUrl },
         });
         
         return NextResponse.json({ 
@@ -67,15 +67,24 @@ export async function POST(req: NextRequest) {
         });
       } else {
         // If no vendorId provided but user has a vendor account, update their main store image
-        await prisma.vendor.update({
-          where: { userId: userId },
-          data: { storeImageUrl: imageUrl },
-        });
+        // Find the first vendor associated with this user
+        const vendor = user.vendors && user.vendors.length > 0 ? user.vendors[0] : null;
         
-        return NextResponse.json({ 
-          success: true, 
-          message: "Store image updated successfully" 
-        });
+        if (vendor) {
+          await prisma.vendor.update({
+            where: { id: vendor.id },
+            data: { logo: imageUrl },
+          });
+          
+          return NextResponse.json({ 
+            success: true, 
+            message: "Store image updated successfully" 
+          });
+        } else {
+          return NextResponse.json({ 
+            error: "No vendor account found for this user" 
+          }, { status: 404 });
+        }
       }
     }
 
