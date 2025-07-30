@@ -7,7 +7,7 @@ export async function GET() {
   try {
     const data = await prisma.order.findMany({
       select: {
-        amount: true,
+        total: true,
         id: true,
         user: {
           select: {
