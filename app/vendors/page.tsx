@@ -294,12 +294,12 @@ export default async function VendorsPage({ searchParams }: VendorsPageProps) {
                       Showing <span className="font-semibold text-emerald-600">{vendors.length}</span> of <span className="font-semibold">{totalVendors}</span> verified vendors
                       {search && (
                         <span className="ml-2 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium">
-                          for "{search}"
+                          for &quot;{search}&quot;
                         </span>
                       )}
                       {category && (
                         <span className="ml-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                          in "{category}"
+                          in &quot;{category}&quot;
                         </span>
                       )}
                     </p>

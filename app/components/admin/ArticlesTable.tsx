@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 import {
   Table,
   TableBody,
@@ -108,10 +109,12 @@ export function ArticlesTable({ articles: initialArticles }: ArticlesTableProps)
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center space-x-2">
-                    <img
+                    <Image
                       src={article.author.profileImage || "/default-avatar.png"}
                       alt={`${article.author.firstName} ${article.author.lastName}`}
                       className="h-6 w-6 rounded-full"
+                      width={24}
+                      height={24}
                     />
                     <span className="text-sm">
                       {article.author.firstName} {article.author.lastName}

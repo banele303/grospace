@@ -34,6 +34,7 @@ import { useRouter } from "next/navigation";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { UploadButton } from "@/app/lib/uploadthing";
 import { toast } from "sonner";
+import Image from 'next/image';
 
 const businessTypes = [
   "Farm",
@@ -210,8 +211,8 @@ export default function VendorRegisterPage() {
               </div>
               <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                 <p className="text-sm text-green-700">
-                  <strong>What's next?</strong><br/>
-                  You'll receive an email notification once your application is approved. This typically takes 1-2 business days.
+                  <strong>What&apos;s next?</strong><br/>
+                  You&apos;ll receive an email notification once your application is approved. This typically takes 1-2 business days.
                 </p>
               </div>
               <div className="pt-4 space-y-2">
@@ -317,7 +318,7 @@ export default function VendorRegisterPage() {
               </CardHeader>
               <CardContent className="p-8">
                 <div className="mb-6">
-                  <Label className="block mb-2 font-medium text-green-800 flex items-center gap-2">
+                  <Label className="mb-2 font-medium text-green-800 flex items-center gap-2">
                     <ImageIcon className="h-4 w-4" />
                     Store Cover Image *
                   </Label>
@@ -332,7 +333,7 @@ export default function VendorRegisterPage() {
                     </div>
                   ) : form.logo ? (
                     <div className="relative w-full h-48 rounded-lg border-2 border-green-200 overflow-hidden">
-                      <img src={form.logo} alt="Store Cover" className="w-full h-full object-cover" />
+                      <Image src={form.logo} alt="Store Cover" layout="fill" className="object-cover" />
                       <div className="absolute top-2 right-2">
                         <Button
                           type="button"
@@ -696,4 +697,4 @@ export default function VendorRegisterPage() {
       </div>
     </div>
   );
-} 
+}

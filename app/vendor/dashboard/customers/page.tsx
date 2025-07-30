@@ -301,7 +301,7 @@ export default async function VendorCustomersPage() {
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No customers yet</h3>
               <p className="text-gray-600">
-                When customers purchase your products, they'll appear here.
+                When customers purchase your products, they&apos;ll appear here.
               </p>
             </div>
           )}

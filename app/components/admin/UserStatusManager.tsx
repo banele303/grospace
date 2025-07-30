@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 import {
   Table,
   TableBody,
@@ -235,10 +236,12 @@ export function UserStatusManager({}: UserStatusManagerProps) {
                     <TableRow key={user.id}>
                       <TableCell>
                         <div className="flex items-center space-x-3">
-                          <img
+                          <Image
                             src={user.profileImage || "/default-avatar.png"}
                             alt={`${user.firstName} ${user.lastName}`}
                             className="h-8 w-8 rounded-full"
+                            width={32}
+                            height={32}
                           />
                           <div>
                             <div className="font-medium">

@@ -306,7 +306,7 @@ export default function GroCommoditiesPage() {
               How to Get Started with GroCommodities
             </h2>
             <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-              Farmers interested in working with GroCommodities can apply through the GroSpace Marketplace. Once approved, we'll handle aggregation, storage, and distribution of your grain crops.
+              Farmers interested in working with GroCommodities can apply through the GroSpace Marketplace. Once approved, we&apos;ll handle aggregation, storage, and distribution of your grain crops.
             </p>
             
             <div className="grid md:grid-cols-3 gap-6 mb-8">

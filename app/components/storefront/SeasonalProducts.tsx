@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 import { 
   Calendar, 
   Thermometer, 
@@ -124,10 +125,12 @@ export async function SeasonalProducts() {
             <Card key={product.id} className="group hover:shadow-lg transition-shadow duration-300 border-agricultural-200">
               <div className="aspect-square relative overflow-hidden rounded-t-lg bg-agricultural-50">
                 {product.images[0] ? (
-                  <img 
+                  <Image 
                     src={product.images[0]} 
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    width={400}
+                    height={400}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">

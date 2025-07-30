@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -180,10 +181,12 @@ export function ArticleForm({ article }: ArticleFormProps) {
               </div>
               {formData.featuredImage && (
                 <div className="mt-4">
-                  <img
+                  <Image
                     src={formData.featuredImage}
                     alt="Featured image preview"
                     className="w-full h-32 object-cover rounded-md"
+                    width={400}
+                    height={128}
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
                     }}

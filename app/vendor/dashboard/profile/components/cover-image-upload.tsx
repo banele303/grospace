@@ -5,6 +5,7 @@ import { UploadButton } from '@/app/lib/uploadthing';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Camera, ImageIcon } from 'lucide-react';
+import Image from 'next/image';
 
 interface CoverImageUploadProps {
   initialImage?: string | null;
@@ -31,10 +32,11 @@ export default function CoverImageUpload({
       <div className="relative w-full h-48 overflow-hidden rounded-lg border-2 border-dashed border-agricultural-200 dark:border-agricultural-700/50 bg-agricultural-50 dark:bg-zinc-800/50 flex flex-col items-center justify-center">
         {image ? (
           <>
-            <img 
+            <Image 
               src={image} 
               alt="Store Cover" 
-              className="w-full h-full object-cover absolute inset-0"
+              layout="fill"
+              className="object-cover absolute inset-0"
             />
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
               <div className="p-2 bg-white dark:bg-zinc-800 rounded-full">

@@ -91,7 +91,7 @@ export interface OrderItem {
   id: string;
   price: number;
   quantity: number;
-  createdAt: string;
+  createdAt: Date;
   order: Order;
   product: Product;
 }

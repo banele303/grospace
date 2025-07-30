@@ -93,7 +93,7 @@ export default function TrainingPage() {
               <h2 className="text-4xl font-bold text-gray-900 mb-6">Why Training Matters for Farmers</h2>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed">
                 Farming is an ever-evolving industry, and modern farmers must stay ahead of the curve to remain competitive. 
-                Traditional farming methods, while effective in the past, often fail to address the complexities of today's 
+                Traditional farming methods, while effective in the past, often fail to address the complexities of today&apos;s 
                 agricultural challenges—climate change, soil degradation, water scarcity, and the increasing demand for 
                 sustainable food production.
               </p>
@@ -155,7 +155,7 @@ export default function TrainingPage() {
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-6">Key Components of GroSpace Farm Training</h2>
             <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-              At the core of GroSpace's training program are key components that make our approach unique, 
+              At the core of GroSpace&apos;s training program are key components that make our approach unique, 
               including farm audits, SOP development, consulting, and innovative tools like GroTowers.
             </p>
           </div>
@@ -410,14 +410,14 @@ export default function TrainingPage() {
             <h2 className="text-4xl font-bold text-gray-900 mb-6">Farming the GroSpace Way</h2>
             <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed mb-8">
               At GroSpace, we believe that with the right knowledge, resources, and support, every farmer can achieve success. 
-              Farm Training – the GroSpace way is more than just teaching farmers how to plant crops—it's about empowering 
+              Farm Training – the GroSpace way is more than just teaching farmers how to plant crops—it&apos;s about empowering 
               them to build sustainable, profitable farming businesses.
             </p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-6">What You'll Learn:</h3>
+              <h3 className="text-3xl font-bold text-gray-900 mb-6">What You&apos;ll Learn:</h3>
               <div className="space-y-4">
                 <div className="flex items-center">
                   <CheckCircle className="w-6 h-6 text-emerald-600 mr-3" />
@@ -467,7 +467,7 @@ export default function TrainingPage() {
 
           <div className="text-center mt-12">
             <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-              Whether you're a small-scale farmer or managing a large commercial operation, GroSpace's training programs 
+              Whether you&apos;re a small-scale farmer or managing a large commercial operation, GroSpace&apos;s training programs 
               can equip you with the tools and strategies needed to thrive. Join us, and start farming the GroSpace way.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -489,7 +489,7 @@ export default function TrainingPage() {
             <h2 className="text-4xl font-bold text-gray-900 mb-6">Book Your Training Session</h2>
             <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
               Ready to transform your farming practices? Fill out the form below to book a training 
-              session with our agricultural experts. We'll contact you to discuss your specific needs and schedule.
+              session with our agricultural experts. We&apos;ll contact you to discuss your specific needs and schedule.
             </p>
           </div>
           

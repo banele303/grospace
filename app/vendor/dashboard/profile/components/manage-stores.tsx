@@ -251,7 +251,7 @@ export default function ManageStores({ userId, existingStores }: ManageStoresPro
           ) : stores.length === 0 ? (
             <div className="text-center py-8">
               <Tractor className="h-10 w-10 mx-auto text-gray-400 dark:text-agricultural-500/40 mb-2" />
-              <p className="text-muted-foreground dark:text-agricultural-400/70">You don't have any stores/farms yet</p>
+              <p className="text-muted-foreground dark:text-agricultural-400/70">You don&apos;t have any stores/farms yet</p>
               <Button 
                 className="mt-4 bg-agricultural-500 hover:bg-agricultural-600 dark:bg-agricultural-700 dark:hover:bg-agricultural-600 dark:text-white transition-all duration-200"
                 onClick={() => setIsCreating(true)}

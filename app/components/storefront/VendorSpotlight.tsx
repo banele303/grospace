@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from "next/image";
 import { 
   MapPin, 
   Star, 
@@ -152,10 +153,12 @@ export async function VendorSpotlight() {
                       {vendor.products.map((product) => (
                         <div key={product.id} className="aspect-square bg-agricultural-50 rounded-lg overflow-hidden">
                           {product.images[0] ? (
-                            <img 
+                            <Image 
                               src={product.images[0]} 
                               alt={product.name}
                               className="w-full h-full object-cover"
+                              width={100}
+                              height={100}
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">

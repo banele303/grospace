@@ -276,7 +276,7 @@ export default async function VendorReviewsPage() {
               <Star className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No reviews yet</h3>
               <p className="text-gray-600">
-                When customers leave reviews for your products, they'll appear here.
+                When customers leave reviews for your products, they&apos;ll appear here.
               </p>
             </div>
           )}

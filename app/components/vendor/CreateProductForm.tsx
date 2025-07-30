@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -306,10 +307,12 @@ export function CreateProductForm({ vendorId, categories, seasonality }: CreateP
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {images.map((image, index) => (
               <div key={index} className="relative group">
-                <img
+                <Image
                   src={image}
                   alt={`Product ${index + 1}`}
                   className="w-full h-24 object-cover rounded-lg border border-agricultural-200"
+                  width={100}
+                  height={96}
                 />
                 <button
                   type="button"

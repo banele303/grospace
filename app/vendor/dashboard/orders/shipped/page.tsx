@@ -13,7 +13,7 @@ type OrderItem = {
   id: string;
   price: number;
   quantity: number;
-  createdAt: string | Date;
+  createdAt: Date;
   vendorId: string;
   order: {
     id: string;
@@ -102,7 +102,7 @@ export default async function ShippedOrdersPage() {
                 No shipped orders
               </h3>
               <p className="text-gray-600 dark:text-slate-400">
-                You currently don't have any orders in transit.
+                You currently don&apos;t have any orders in transit.
               </p>
             </div>
           )}

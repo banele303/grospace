@@ -256,7 +256,7 @@ export default function GroBiogasPage() {
       <section className="py-16 px-4 bg-gray-50/30">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">GroBiogas's Role in the GroSpace Ecosystem</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">GroBiogas&apos;s Role in the GroSpace Ecosystem</h2>
             <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
               GroBiogas is an integral part of the GroSpace value chain, playing a critical role in waste management, 
               renewable energy production, and soil health improvement.
@@ -365,7 +365,7 @@ export default function GroBiogasPage() {
             <h3 className="text-2xl font-bold text-gray-900 mb-4">Join GroBiogas Today</h3>
             <p className="text-gray-600 leading-relaxed">
               Start turning waste into renewable energy and natural fertilizers for a more sustainable future. 
-              Whether you're a small-scale farmer or a large commercial operation, GroBiogas provides the tools 
+              Whether you&apos;re a small-scale farmer or a large commercial operation, GroBiogas provides the tools 
               and resources you need to create a cleaner, more efficient farm.
             </p>
           </div>

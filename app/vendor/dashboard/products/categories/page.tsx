@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -327,10 +328,12 @@ export default function CategoriesPage() {
                     <div className="space-y-4">
                       {newCategoryImage ? (
                         <div className="relative">
-                          <img
+                          <Image
                             src={newCategoryImage}
                             alt="Category preview"
                             className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                            width={300}
+                            height={128}
                           />
                           <button
                             type="button"
@@ -452,10 +455,12 @@ export default function CategoriesPage() {
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-xl overflow-hidden border border-gray-200">
                           {category.image ? (
-                            <img
+                            <Image
                               src={category.image}
                               alt={category.name}
                               className="w-full h-full object-cover"
+                              width={48}
+                              height={48}
                             />
                           ) : (
                             <div className={`w-full h-full ${category.color} flex items-center justify-center`}>
@@ -520,7 +525,7 @@ export default function CategoriesPage() {
           <div>
             <h3 className="text-lg font-semibold">Pro Tip</h3>
             <p className="text-muted-foreground mt-1">
-              Well-organized categories help buyers find your products faster and can improve your sales. Consider creating specific categories that match your target customers' search behavior.
+              Well-organized categories help buyers find your products faster and can improve your sales. Consider creating specific categories that match your target customers&apos; search behavior.
             </p>
           </div>
         </div>
@@ -535,17 +540,19 @@ export default function CategoriesPage() {
               Delete Category
             </DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the category "{categoryToDelete?.name}"? This action cannot be undone.
+              Are you sure you want to delete the category &quot;{categoryToDelete?.name}&quot;? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           
           <div className="flex items-center gap-4 p-4 bg-red-50 rounded-lg border border-red-200">
             <div className="w-12 h-12 rounded-lg overflow-hidden border">
               {categoryToDelete?.image ? (
-                <img
+                <Image
                   src={categoryToDelete.image}
                   alt={categoryToDelete.name}
                   className="w-full h-full object-cover"
+                  width={48}
+                  height={48}
                 />
               ) : (
                 <div className="w-full h-full bg-muted flex items-center justify-center">

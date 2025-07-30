@@ -13,7 +13,7 @@ type OrderItem = {
   id: string;
   price: number;
   quantity: number;
-  createdAt: string | Date;
+  createdAt: string;
   vendorId: string;
   order: {
     id: string;
@@ -35,7 +35,7 @@ type OrderItem = {
 async function getDeliveredOrders(vendorId: string) {
   noStore();
   
-  const orders = await prisma.orderItem.findMany({
+  const ordersData = await prisma.orderItem.findMany({
     where: { 
       vendorId,
       order: {
@@ -52,6 +52,12 @@ async function getDeliveredOrders(vendorId: string) {
     },
     orderBy: { createdAt: 'desc' },
   });
+
+  // Transform the Date objects to strings to match the OrderItem type
+  const orders = ordersData.map(order => ({
+    ...order,
+    createdAt: order.createdAt.toISOString(),
+  }));
 
   // Calculate total revenue from delivered orders
   const totalRevenue = orders.reduce((sum, order) => sum + (order.price * order.quantity), 0);
@@ -123,7 +129,7 @@ export default async function DeliveredOrdersPage() {
                 No delivered orders
               </h3>
               <p className="text-gray-600 dark:text-slate-400">
-                You don't have any completed orders yet.
+                You don&apos;t have any completed orders yet.
               </p>
             </div>
           )}

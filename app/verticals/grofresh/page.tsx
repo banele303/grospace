@@ -224,7 +224,7 @@ export default function GroFreshPage() {
                 <h3 className="text-2xl font-bold text-gray-900">Reduced Waste</h3>
               </div>
               <p className="text-gray-600 leading-relaxed mb-4">
-                Off-spec produce remains valuable through GroWaste and GroFeeds repurposing, ensuring farmers don't lose revenue from non-retail suitable produce.
+                Off-spec produce remains valuable through GroWaste and GroFeeds repurposing, ensuring farmers don&apos;t lose revenue from non-retail suitable produce.
               </p>
               {/* Waste Reduction Image Placeholder */}
               <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl h-32 flex items-center justify-center border-2 border-dashed border-green-200">

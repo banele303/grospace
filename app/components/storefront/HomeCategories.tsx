@@ -12,7 +12,7 @@ import {
   Play
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 
 // Custom CSS class for hiding scrollbar across browsers
 const scrollbarHideClass = `
@@ -114,16 +114,20 @@ export function HomeCategories() {
   };
   
   // Check scroll position to show/hide arrows
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     if (scrollContainerRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
       setShowLeftArrow(scrollLeft > 0);
       setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10); // Small buffer
     }
-  };
+  }, []);
+  
+  // Pause auto-scrolling when hovering over container
+  const pauseAutoScroll = useCallback(() => setIsAutoScrollPaused(true), []);
+  const resumeAutoScroll = useCallback(() => setIsAutoScrollPaused(false), []);
   
   // Auto-scroll functionality
-  const startAutoScroll = () => {
+  const startAutoScroll = useCallback(() => {
     if (autoScrollIntervalRef.current) clearInterval(autoScrollIntervalRef.current);
     
     autoScrollIntervalRef.current = setInterval(() => {
@@ -149,11 +153,7 @@ export function HomeCategories() {
         handleScroll();
       }
     }, 3000); // Auto-scroll every 3 seconds
-  };
-  
-  // Pause auto-scrolling when hovering over container
-  const pauseAutoScroll = () => setIsAutoScrollPaused(true);
-  const resumeAutoScroll = () => setIsAutoScrollPaused(false);
+  }, [isAutoScrollPaused, handleScroll]);
 
   // Set up auto-scroll and scroll event listener
   useEffect(() => {
@@ -181,7 +181,7 @@ export function HomeCategories() {
         }
       };
     }
-  }, [isAutoScrollPaused, startAutoScroll, handleScroll, pauseAutoScroll, resumeAutoScroll]);
+  }, [handleScroll, pauseAutoScroll, resumeAutoScroll, startAutoScroll]);
 
   return (
     <section className="py-8 px-4 sm:px-6 lg:px-8 bg-white relative overflow-hidden">

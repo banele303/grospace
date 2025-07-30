@@ -267,9 +267,9 @@ export default function GroChickPage() {
       <section className="py-16 px-4 bg-gray-50/30">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">GroChick's Role in the GroSpace Ecosystem</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">GroChick&apos;s Role in the GroSpace Ecosystem</h2>
             <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-              As part of the broader GroSpace ecosystem, GroChick works seamlessly with other "Gro" businesses to ensure 
+              As part of the broader GroSpace ecosystem, GroChick works seamlessly with other &quot;Gro&quot; businesses to ensure 
               that poultry farmers can access everything they need for success.
             </p>
           </div>

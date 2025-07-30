@@ -37,6 +37,7 @@ import {
   List,
   MoreHorizontal
 } from "lucide-react";
+import Image from "next/image";
 
 interface Product {
   id: string;
@@ -318,9 +319,11 @@ export default function InventoryClient({ vendorName = "Vendor", userEmail = "ve
                   <div className="flex items-center gap-4 mb-4 md:mb-0 w-full md:w-auto">
                     <div className="w-16 h-16 bg-gray-100 dark:bg-slate-900 rounded flex items-center justify-center overflow-hidden">
                       {product.images && product.images.length > 0 ? (
-                        <img
+                        <Image
                           src={product.images[0]}
                           alt={product.name}
+                          width={64}
+                          height={64}
                           className="object-cover w-full h-full"
                         />
                       ) : (

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import Image from "next/image";
 
 interface ArticlePageProps {
   params: {
@@ -51,10 +52,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           
           <div className="flex items-center justify-between flex-wrap gap-4 pb-6 border-b">
             <div className="flex items-center space-x-4">
-              <img
+              <Image
                 src={article.author.profileImage || "/default-avatar.png"}
                 alt={`${article.author.firstName} ${article.author.lastName}`}
                 className="h-12 w-12 rounded-full"
+                width={48}
+                height={48}
               />
               <div>
                 <div className="font-semibold text-gray-900 dark:text-white">
@@ -81,10 +84,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         {/* Featured Image */}
         {article.featuredImage && (
           <div className="mb-8">
-            <img
+            <Image
               src={article.featuredImage}
               alt={article.title}
               className="w-full aspect-video object-cover rounded-lg"
+              width={1200}
+              height={675}
             />
           </div>
         )}
