@@ -65,7 +65,7 @@ const categories = [
   {
     id: "fertilizers",
     name: "Fertilizers",
-    image: "https://images.unsplash.com/photo-1603059905664-b96e62263c4e?w=400&h=400&fit=crop&crop=center",
+    image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=400&fit=crop&crop=center",
     icon: "💧"
   },
   {
@@ -266,6 +266,11 @@ export function HomeCategories() {
                         alt={category.name}
                         fill
                         className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        onError={(e) => {
+                          console.warn(`Failed to load image for ${category.name}:`, category.image);
+                          // Set a fallback image or hide the image
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
                       
