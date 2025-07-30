@@ -1,0 +1,203 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Leaf, 
+  Users, 
+  Package, 
+  TrendingUp, 
+  ArrowRight,
+  Sprout,
+  Sun,
+  Droplets
+} from "lucide-react";
+import Link from "next/link";
+
+interface MarketplaceStats {
+  vendorCount: number;
+  productCount: number;
+  categoryStats: Array<{
+    category: string;
+    _count: { category: number };
+  }>;
+}
+
+interface AgricultureHeroProps {
+  stats: MarketplaceStats;
+}
+
+export function AgricultureHero({ stats }: AgricultureHeroProps) {
+  return (
+    <div className="relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-gradient-to-br from-agricultural-100 via-fresh-50 to-earth-50">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23059669" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-40"></div>
+      </div>
+
+      <div className="relative container mx-auto px-6 py-16 lg:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Hero Content */}
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Badge className="bg-agricultural-500 text-white hover:bg-agricultural-600">
+                  🌱 Fresh &amp; Local
+                </Badge>
+                <Badge variant="outline" className="border-fresh-300 text-fresh-700">
+                  Farm to Table
+                </Badge>
+              </div>
+              
+              <h1 className="text-4xl lg:text-6xl font-bold text-agricultural-800 leading-tight">
+                Fresh from
+                <span className="text-fresh-600 block">Local Farms</span>
+              </h1>
+              
+              <p className="text-lg text-agricultural-600 max-w-lg">
+                Connect directly with local farmers and producers. Get the freshest 
+                agricultural products delivered straight from the source to your table.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button 
+                asChild 
+                size="lg" 
+                className="bg-agricultural-500 hover:bg-agricultural-600 text-white"
+              >
+                <Link href="/products" className="flex items-center gap-2">
+                  Shop Now
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              
+              <Button 
+                asChild 
+                variant="outline" 
+                size="lg"
+                className="border-agricultural-300 text-agricultural-700 hover:bg-agricultural-50"
+              >
+                <Link href="/vendors/register">
+                  Become a Vendor
+                </Link>
+              </Button>
+            </div>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-3 gap-6 pt-8">
+              <div className="text-center">
+                <div className="flex items-center justify-center w-12 h-12 bg-agricultural-100 rounded-full mb-2 mx-auto">
+                  <Users className="h-6 w-6 text-agricultural-600" />
+                </div>
+                <div className="text-2xl font-bold text-agricultural-800">
+                  {stats.vendorCount}+
+                </div>
+                <div className="text-sm text-agricultural-600">
+                  Local Vendors
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <div className="flex items-center justify-center w-12 h-12 bg-fresh-100 rounded-full mb-2 mx-auto">
+                  <Package className="h-6 w-6 text-fresh-600" />
+                </div>
+                <div className="text-2xl font-bold text-fresh-800">
+                  {stats.productCount}+
+                </div>
+                <div className="text-sm text-fresh-600">
+                  Fresh Products
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <div className="flex items-center justify-center w-12 h-12 bg-earth-100 rounded-full mb-2 mx-auto">
+                  <TrendingUp className="h-6 w-6 text-earth-600" />
+                </div>
+                <div className="text-2xl font-bold text-earth-800">
+                  98%
+                </div>
+                <div className="text-sm text-earth-600">
+                  Satisfaction
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Hero Visual */}
+          <div className="relative">
+            <div className="grid grid-cols-2 gap-4">
+              {/* Feature Cards */}
+              <Card className="bg-white/80 backdrop-blur-sm border-agricultural-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-agricultural-100 rounded-lg">
+                      <Leaf className="h-5 w-5 text-agricultural-600" />
+                    </div>
+                    <h3 className="font-semibold text-agricultural-800">
+                      Organic
+                    </h3>
+                  </div>
+                  <p className="text-sm text-agricultural-600">
+                    Certified organic products from trusted local farms
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/80 backdrop-blur-sm border-fresh-200 mt-8">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-fresh-100 rounded-lg">
+                      <Sprout className="h-5 w-5 text-fresh-600" />
+                    </div>
+                    <h3 className="font-semibold text-fresh-800">
+                      Fresh
+                    </h3>
+                  </div>
+                  <p className="text-sm text-fresh-600">
+                    Harvested daily and delivered within 24 hours
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/80 backdrop-blur-sm border-earth-200 -mt-4">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-earth-100 rounded-lg">
+                      <Sun className="h-5 w-5 text-earth-600" />
+                    </div>
+                    <h3 className="font-semibold text-earth-800">
+                      Seasonal
+                    </h3>
+                  </div>
+                  <p className="text-sm text-earth-600">
+                    Best seasonal produce at peak freshness
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/80 backdrop-blur-sm border-agricultural-200 mt-4">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-agricultural-100 rounded-lg">
+                      <Droplets className="h-5 w-5 text-agricultural-600" />
+                    </div>
+                    <h3 className="font-semibold text-agricultural-800">
+                      Sustainable
+                    </h3>
+                  </div>
+                  <p className="text-sm text-agricultural-600">
+                    Environmentally conscious farming practices
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Floating Elements */}
+            <div className="absolute -top-4 -right-4 w-20 h-20 bg-agricultural-200 rounded-full opacity-60 animate-pulse"></div>
+            <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-fresh-200 rounded-full opacity-40 animate-pulse delay-1000"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

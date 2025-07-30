@@ -1,0 +1,1 @@
+SELECT COUNT(*) FROM "Vendor" WHERE "userId" IS NULL;

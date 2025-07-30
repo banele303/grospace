@@ -1,0 +1,84 @@
+/* Jodit Editor Custom Styles for Dark/Light Mode */
+
+/* Light mode styles (default) */
+.jodit-container .jodit-wysiwyg {
+  background-color: #ffffff;
+  color: #333333;
+}
+
+.jodit-toolbar-button {
+  background-color: #f5f5f5;
+  border-color: #e0e0e0;
+}
+
+.jodit-toolbar {
+  background-color: #f8f8f8;
+  border-color: #e0e0e0;
+}
+
+/* Dark mode overrides */
+[data-theme="dark"] .jodit-container .jodit-wysiwyg {
+  background-color: #1f2937;
+  color: #e5e7eb;
+}
+
+[data-theme="dark"] .jodit-toolbar-button {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #e5e7eb;
+}
+
+[data-theme="dark"] .jodit-toolbar {
+  background-color: #2d3748;
+  border-color: #4b5563;
+}
+
+[data-theme="dark"] .jodit-container .jodit-workplace {
+  background-color: #1f2937;
+  border-color: #4b5563;
+}
+
+[data-theme="dark"] .jodit-popup {
+  background-color: #2d3748;
+  color: #e5e7eb;
+  border-color: #4b5563;
+}
+
+/* General improvements */
+.jodit-container {
+  border-radius: 0.375rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  border-width: 1px;
+  border-color: #e2e8f0;
+}
+
+[data-theme="dark"] .jodit-container {
+  border-color: #4b5563;
+}
+
+/* Agricultural theme integration */
+.jodit-toolbar-button:hover {
+  background-color: rgba(74, 132, 85, 0.1); /* Light green tint for hover in light mode */
+}
+
+[data-theme="dark"] .jodit-toolbar-button:hover {
+  background-color: rgba(84, 154, 98, 0.2); /* Darker green tint for hover in dark mode */
+}
+
+.jodit-toolbar-button.jodit-toolbar-button_active {
+  background-color: rgba(74, 132, 85, 0.2); /* Agricultural green for active buttons */
+}
+
+/* Make the editor responsive */
+.jodit-container, 
+.jodit-container .jodit-workplace, 
+.jodit-container .jodit-wysiwyg {
+  max-width: 100%;
+}
+
+/* Smooth transitions between modes */
+.jodit-container,
+.jodit-container * {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

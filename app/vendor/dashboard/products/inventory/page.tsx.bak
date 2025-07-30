@@ -1,0 +1,483 @@
+import { requireVendor } from "@/app/lib/auth";
+import { redirect } from "next/navigation";
+import InventoryClient from "./InventoryClient";
+
+export const dynamic = 'force-dynamic';
+
+export default async function InventoryPage() {
+  let user;
+  let vendor;
+
+  try {
+    const result = await requireVendor();
+    user = result.user;
+    vendor = result.vendor;
+  } catch (error) {
+    return redirect("/vendors/register");
+  }
+
+  return (
+    <InventoryClient 
+      vendorName={vendor.name} 
+      userEmail={user.email}
+    />
+  );
+}
+
+  const formatPrice = (price: number) => {
+    return `R${price.toFixed(2)}`;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+          <p className="text-muted-foreground">Loading inventory...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-screen overflow-hidden bg-background">
+      {/* Sidebar */}
+      <div className="hidden lg:block">
+        <VendorDashboardSidebar />
+      </div>
+      
+      {/* Main content */}
+      <div className="flex-1 overflow-auto">
+        <VendorHeader />
+        <main className="p-4 sm:p-6 lg:p-8 space-y-8">
+      {/* Modern Header with Gradient */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-2xl p-8 text-primary-foreground">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Package className="h-8 w-8" />
+                <h1 className="text-4xl font-bold">Inventory Management</h1>
+              </div>
+              <p className="text-primary-foreground/80 text-lg max-w-2xl">
+                Monitor and manage your product inventory with advanced analytics and insights.
+              </p>
+              <div className="flex items-center gap-6 mt-4">
+                <div className="flex items-center gap-2">
+                  <Boxes className="h-5 w-5 text-primary-foreground/70" />
+                  <span className="text-primary-foreground/80">{products.length} Products</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ShoppingCart className="h-5 w-5 text-primary-foreground/70" />
+                  <span className="text-primary-foreground/80">{products.reduce((sum, p) => sum + p.sales, 0)} Sales</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-primary-foreground/70" />
+                  <span className="text-primary-foreground/80">Active Monitoring</span>
+                </div>
+              </div>
+            </div>
+            <Button className="bg-background text-foreground hover:bg-muted shadow-lg">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Product
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters and Search */}
+      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-4 flex-1">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search products, SKU, or description..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              {CATEGORIES.map(category => (
+                <SelectItem key={category} value={category}>
+                  {category === "all" ? "All Categories" : category.charAt(0).toUpperCase() + category.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+            <SelectTrigger className="w-full sm:w-[150px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              {STATUS_OPTIONS.map(status => (
+                <SelectItem key={status} value={status}>
+                  {status === "all" ? "All Status" : status.charAt(0).toUpperCase() + status.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="name">Name</SelectItem>
+              <SelectItem value="price">Price</SelectItem>
+              <SelectItem value="stock">Stock</SelectItem>
+              <SelectItem value="sales">Sales</SelectItem>
+              <SelectItem value="views">Views</SelectItem>
+              <SelectItem value="rating">Rating</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          {/* View Mode Toggle */}
+          <div className="flex items-center border border-gray-200 rounded-lg p-1">
+            <Button
+              size="sm"
+              variant={viewMode === "grid" ? "default" : "ghost"}
+              onClick={() => setViewMode("grid")}
+              className={`px-3 ${viewMode === "grid" ? "bg-primary text-primary-foreground" : ""}`}
+            >
+              <Grid3X3 className="h-4 w-4" />
+            </Button>
+            <Button
+              size="sm"
+              variant={viewMode === "list" ? "default" : "ghost"}
+              onClick={() => setViewMode("list")}
+              className={`px-3 ${viewMode === "list" ? "bg-primary text-primary-foreground" : ""}`}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Products Grid */}
+      {filteredProducts.length === 0 ? (
+        <Card className="border-dashed border-2">
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+              <Package className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">
+              {searchTerm || selectedCategory !== "all" || selectedStatus !== "all" 
+                ? 'No products found' 
+                : 'No products yet'
+              }
+            </h3>
+            <p className="text-muted-foreground text-center max-w-md mb-6">
+              {searchTerm || selectedCategory !== "all" || selectedStatus !== "all"
+                ? 'Try adjusting your filters or search terms.'
+                : 'Get started by adding your first product to the inventory.'
+              }
+            </p>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Add First Product
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-4"}>
+          {filteredProducts.map((product) => {
+            const stockStatus = getStockStatus(product.stock);
+            
+            if (viewMode === "list") {
+              return (
+                <Card key={product.id} className="group hover:shadow-lg transition-all duration-300 border-0 shadow-sm">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-6">
+                      {/* Product Image */}
+                      <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                        {product.images.length > 0 ? (
+                          <img
+                            src={product.images[0]}
+                            alt={product.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Product Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="text-lg font-semibold truncate">
+                                {product.name}
+                              </h3>
+                              {getStatusBadge(product.status)}
+                              <Badge className={stockStatus.color}>
+                                {stockStatus.label}
+                              </Badge>
+                              {product.discountPrice && (
+                                <Badge className="bg-red-500 text-white">
+                                  {Math.round(((product.price - product.discountPrice) / product.price) * 100)}% OFF
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                              {product.description}
+                            </p>
+                            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Tag className="h-3 w-3" />
+                                {product.sku}
+                              </span>
+                              <span className="capitalize">{product.category}</span>
+                              <span>{product.stock} {product.unit} in stock</span>
+                            </div>
+                          </div>
+                          
+                          {/* Price */}
+                          <div className="text-right ml-4">
+                            <div className="flex items-center gap-2">
+                              {product.discountPrice ? (
+                                <>
+                                  <span className="text-xl font-bold text-primary">
+                                    {formatPrice(product.discountPrice)}
+                                  </span>
+                                  <span className="text-sm text-muted-foreground line-through">
+                                    {formatPrice(product.price)}
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="text-xl font-bold text-primary">
+                                  {formatPrice(product.price)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Stats and Actions */}
+                        <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                          <div className="flex items-center gap-6">
+                            <div className="flex items-center gap-1 text-sm text-blue-600">
+                              <Eye className="h-4 w-4" />
+                              <span>{product.views} views</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400">
+                              <ShoppingCart className="h-4 w-4" />
+                              <span>{product.sales} sales</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm text-yellow-600">
+                              <Star className="h-4 w-4" />
+                              <span>{product.rating} rating</span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            <Button size="sm" variant="outline">
+                              <Eye className="h-3 w-3 mr-1" />
+                              View
+                            </Button>
+                            <Button size="sm" variant="outline">
+                              <Edit className="h-3 w-3 mr-1" />
+                              Edit
+                            </Button>
+                            <Button size="sm" variant="outline" className="text-red-500 hover:text-red-700 hover:bg-red-50">
+                              <MoreHorizontal className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            }
+            
+            // Grid view (original card layout)
+            return (
+              <Card key={product.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md hover:scale-[1.02] overflow-hidden">
+                <div className="relative">
+                  {/* Product Image */}
+                  <div className="aspect-square overflow-hidden bg-muted">
+                    {product.images.length > 0 ? (
+                      <img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <ImageIcon className="h-12 w-12 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Overlay badges */}
+                  <div className="absolute top-3 left-3">
+                    {getStatusBadge(product.status)}
+                  </div>
+                  
+                  <div className="absolute top-3 right-3">
+                    <Badge className={stockStatus.color}>
+                      {stockStatus.label}
+                    </Badge>
+                  </div>
+
+                  {/* Discount badge */}
+                  {product.discountPrice && (
+                    <div className="absolute bottom-3 left-3">
+                      <Badge className="bg-red-500 text-white">
+                        {Math.round(((product.price - product.discountPrice) / product.price) * 100)}% OFF
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    {/* Product Info */}
+                    <div>
+                      <h3 className="text-lg font-semibold line-clamp-1">
+                        {product.name}
+                      </h3>
+                      <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                        {product.description}
+                      </p>
+                    </div>
+
+                    {/* Price and Stock */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {product.discountPrice ? (
+                          <>
+                            <span className="text-lg font-bold text-primary">
+                              {formatPrice(product.discountPrice)}
+                            </span>
+                            <span className="text-sm text-muted-foreground line-through">
+                              {formatPrice(product.price)}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-lg font-bold text-primary">
+                            {formatPrice(product.price)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium">
+                          {product.stock} {product.unit}
+                        </p>
+                        <p className="text-xs text-muted-foreground">in stock</p>
+                      </div>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div className="bg-blue-50 rounded-lg p-2">
+                        <div className="flex items-center justify-center gap-1">
+                          <Eye className="h-3 w-3 text-blue-600" />
+                          <span className="text-xs font-medium text-blue-600">{product.views}</span>
+                        </div>
+                        <p className="text-xs text-blue-500">Views</p>
+                      </div>
+                      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2">
+                        <div className="flex items-center justify-center gap-1">
+                          <ShoppingCart className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                          <span className="text-xs font-medium text-blue-600 dark:text-blue-400">{product.sales}</span>
+                        </div>
+                        <p className="text-xs text-blue-500 dark:text-blue-400">Sales</p>
+                      </div>
+                      <div className="bg-yellow-50 rounded-lg p-2">
+                        <div className="flex items-center justify-center gap-1">
+                          <Star className="h-3 w-3 text-yellow-600" />
+                          <span className="text-xs font-medium text-yellow-600">{product.rating}</span>
+                        </div>
+                        <p className="text-xs text-yellow-500">Rating</p>
+                      </div>
+                    </div>
+
+                    {/* SKU and Category */}
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Tag className="h-3 w-3" />
+                        {product.sku}
+                      </span>
+                      <span className="capitalize">{product.category}</span>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-2 pt-2">
+                      <Button size="sm" variant="outline" className="flex-1">
+                        <Eye className="h-3 w-3 mr-1" />
+                        View
+                      </Button>
+                      <Button size="sm" variant="outline" className="flex-1">
+                        <Edit className="h-3 w-3 mr-1" />
+                        Edit
+                      </Button>
+                      <Button size="sm" variant="outline" className="text-red-500 hover:text-red-700 hover:bg-red-50">
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Summary Stats */}
+      <div className="bg-gradient-to-r from-muted/50 to-muted rounded-xl p-6 border">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="text-center">
+            <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mx-auto mb-2">
+              <Package className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <h3 className="text-2xl font-bold">{filteredProducts.length}</h3>
+            <p className="text-muted-foreground">Products</p>
+          </div>
+          <div className="text-center">
+            <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+              <CheckCircle className="h-6 w-6 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              {filteredProducts.filter(p => p.stock > 0).length}
+            </h3>
+            <p className="text-blue-600 dark:text-blue-400">In Stock</p>
+          </div>
+          <div className="text-center">
+            <div className="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+              <AlertTriangle className="h-6 w-6 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+              {filteredProducts.filter(p => p.stock > 0 && p.stock < 20).length}
+            </h3>
+            <p className="text-yellow-600 dark:text-yellow-400">Low Stock</p>
+          </div>
+          <div className="text-center">
+            <div className="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+              <AlertCircle className="h-6 w-6 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold text-red-600 dark:text-red-400">
+              {filteredProducts.filter(p => p.stock === 0).length}
+            </h3>
+            <p className="text-red-600 dark:text-red-400">Out of Stock</p>
+          </div>
+        </div>
+      </div>
+        </main>
+      </div>
+    </div>
+  );
+}
