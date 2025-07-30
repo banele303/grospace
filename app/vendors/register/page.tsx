@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import { useAuthRedirect } from "@/app/hooks/useAuthRedirect";
 import { UploadButton } from "@/app/lib/uploadthing";
 import { toast } from "sonner";
 import Image from 'next/image';
@@ -69,7 +69,9 @@ const specialtyOptions = [
 
 export default function VendorRegisterPage() {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading } = useKindeBrowserClient();
+  const { user, isAuthenticated, isLoading, authChecked } = useAuthRedirect({
+    redirectTo: '/api/auth/login?post_login_redirect_url=/vendors/register'
+  });
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     name: "",
@@ -91,12 +93,7 @@ export default function VendorRegisterPage() {
   const [success, setSuccess] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/api/auth/login?post_login_redirect_url=/vendors/register');
-    }
-  }, [isAuthenticated, isLoading, router]);
-
+  // Show loading while checking authentication
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center">
@@ -108,8 +105,22 @@ export default function VendorRegisterPage() {
     );
   }
 
-  if (!isAuthenticated) {
-    return null;
+  // If not authenticated after checking, show message instead of redirecting
+  if (!isAuthenticated && !user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center">
+        <div className="text-center space-y-4 max-w-md mx-auto p-6">
+          <AlertCircle className="w-16 h-16 text-amber-500 mx-auto" />
+          <h2 className="text-2xl font-bold text-gray-800">Authentication Required</h2>
+          <p className="text-gray-600">You need to be signed in to register as a vendor.</p>
+          <Link href="/api/auth/login?post_login_redirect_url=/vendors/register">
+            <Button className="bg-green-600 hover:bg-green-700">
+              Sign In to Continue
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

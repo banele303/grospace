@@ -34,7 +34,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useCart } from "@/app/context/CartContext";
-import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import { useAuthState } from "@/app/hooks/useAuthState";
 
 function AuthButtons() {
   return (
@@ -78,8 +78,11 @@ function AuthDropdown() {
 }
 
 export function Navbar() {
-  const { user } = useKindeBrowserClient();
+  const { user, isLoading } = useAuthState();
   const { itemCount } = useCart();
+
+  // Debug logging
+  console.log('Navbar - User state:', { user, isLoading });
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white">
@@ -211,7 +214,9 @@ export function Navbar() {
               Become a Vendor
             </span>
           </Link>
-          {user ? (
+          {isLoading ? (
+            <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse"></div>
+          ) : user ? (
             <UserDropdown
               email={user.email as string}
               name={user.given_name as string}
@@ -332,7 +337,9 @@ export function Navbar() {
                       Become a Vendor
                     </span>
                   </Link>
-                  {user ? (
+                  {isLoading ? (
+                    <div className="w-full h-12 bg-gray-200 animate-pulse rounded-lg"></div>
+                  ) : user ? (
                      <UserDropdown
                         email={user.email as string}
                         name={user.given_name as string}
