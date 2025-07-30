@@ -106,22 +106,22 @@ export async function requireVendor() {
     throw new Error(`Your account has been blocked.${reason}`);
   }
 
-  if (user.accountStatus === 'SUSPENDED') {
+  if (user.accountStatus === UserStatus.SUSPENDED) {
     throw new Error("Your account is temporarily suspended. Please contact support.");
   }
 
   // Check vendor status
   const vendor = user.vendors[0];
-  if (vendor.vendorStatus === 'PENDING' || !vendor.approved) {
+  if (vendor.vendorStatus === VendorStatus.PENDING || !vendor.approved) {
     throw new Error("Your vendor account is pending approval. Please wait for admin approval.");
   }
 
-  if (vendor.vendorStatus === 'BLOCKED') {
+  if (vendor.vendorStatus === VendorStatus.BLOCKED) {
     const reason = vendor.blockedReason ? ` Reason: ${vendor.blockedReason}` : '';
     throw new Error(`Your vendor account has been blocked.${reason}`);
   }
 
-  if (vendor.vendorStatus === 'SUSPENDED') {
+  if (vendor.vendorStatus === VendorStatus.SUSPENDED) {
     throw new Error("Your vendor account is temporarily suspended. Please contact support.");
   }
   

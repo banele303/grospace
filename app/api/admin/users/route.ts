@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { prisma } from "@/lib/db";
+import { UserStatus } from "@/app/lib/auth";
 
 // GET /api/admin/users - Get all users with their statuses
 export async function GET(request: NextRequest) {
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
     const where: any = {};
     if (status && status !== 'ALL') {
       // Make sure status is a valid UserStatus enum value
-      if (['PENDING', 'APPROVED', 'BLOCKED', 'SUSPENDED'].includes(status)) {
+      if (Object.values(UserStatus).includes(status as UserStatus)) {
         where.accountStatus = status;
       }
     }
@@ -134,7 +135,7 @@ export async function PUT(request: NextRequest) {
     };
 
     // Set blocked fields
-    if (accountStatus === 'BLOCKED') {
+    if (accountStatus === UserStatus.BLOCKED) {
       updateData.blockedAt = new Date();
       updateData.blockedReason = blockedReason || 'Blocked by admin';
     } else {
