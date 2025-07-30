@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from "next/server";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { prisma } from "@/lib/db";
@@ -47,13 +48,9 @@ export async function GET(request: NextRequest) {
 
     const where: any = {};
     if (status && status !== 'ALL') {
-      console.log("Status filter:", status);
-      console.log("Available UserStatus values:", Object.values(UserStatus));
       // Make sure status is a valid UserStatus enum value
       if (Object.values(UserStatus).includes(status as UserStatus)) {
         where.accountStatus = status;
-      } else {
-        console.log("Invalid status value, not included in filter");
       }
     }
 
@@ -99,21 +96,8 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching users:", error);
-    
-    // Return empty response with error message for production deployments
-    if (process.env.NODE_ENV === 'production') {
-      return NextResponse.json({
-        ...emptyResponse,
-        error: 'An error occurred while fetching users'
-      });
-    }
-    
-    // Return detailed error for development
     return NextResponse.json(
-      { 
-        ...emptyResponse,
-        error: `Failed to fetch users: ${error instanceof Error ? error.message : String(error)}` 
-      },
+      { error: `Failed to fetch users: ${error instanceof Error ? error.message : String(error)}` },
       { status: 500 }
     );
   }
