@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { prisma } from "@/lib/db";
-import { UserStatus } from "@/app/lib/auth";
+import { UserStatus, UserRole } from "@/app/lib/auth";
 
 // GET /api/admin/users - Get all users with their statuses
 export async function GET(request: NextRequest) {
+  // Default empty response for error cases
+  const emptyResponse = {
+    users: [],
+    pagination: {
+      total: 0,
+      page: 1,
+      limit: 10,
+      totalPages: 0
+    }
+  };
   try {
     const { getUser } = getKindeServerSession();
     const user = await getUser();
@@ -22,7 +32,7 @@ export async function GET(request: NextRequest) {
       select: { role: true }
     });
 
-    if (!dbUser || dbUser.role !== "ADMIN") {
+    if (!dbUser || dbUser.role !== UserRole.ADMIN) {
       return NextResponse.json(
         { error: "Admin access required" },
         { status: 403 }
@@ -37,9 +47,13 @@ export async function GET(request: NextRequest) {
 
     const where: any = {};
     if (status && status !== 'ALL') {
+      console.log("Status filter:", status);
+      console.log("Available UserStatus values:", Object.values(UserStatus));
       // Make sure status is a valid UserStatus enum value
       if (Object.values(UserStatus).includes(status as UserStatus)) {
         where.accountStatus = status;
+      } else {
+        console.log("Invalid status value, not included in filter");
       }
     }
 
@@ -85,8 +99,21 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching users:", error);
+    
+    // Return empty response with error message for production deployments
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json({
+        ...emptyResponse,
+        error: 'An error occurred while fetching users'
+      });
+    }
+    
+    // Return detailed error for development
     return NextResponse.json(
-      { error: "Failed to fetch users" },
+      { 
+        ...emptyResponse,
+        error: `Failed to fetch users: ${error instanceof Error ? error.message : String(error)}` 
+      },
       { status: 500 }
     );
   }
@@ -111,7 +138,7 @@ export async function PUT(request: NextRequest) {
       select: { role: true }
     });
 
-    if (!dbUser || dbUser.role !== "ADMIN") {
+    if (!dbUser || dbUser.role !== UserRole.ADMIN) {
       return NextResponse.json(
         { error: "Admin access required" },
         { status: 403 }

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
+import { UserRole, UserStatus } from "@/app/lib/auth";
 import {
   Table,
   TableBody,

@@ -1,6 +1,7 @@
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { UserRole } from "@/app/lib/auth";
 import { UserStatusManager } from "@/app/components/admin/UserStatusManager";
 
 export default async function UserManagementPage() {
@@ -16,7 +17,7 @@ export default async function UserManagementPage() {
     select: { role: true }
   });
 
-  if (!dbUser || dbUser.role !== "ADMIN") {
+  if (!dbUser || dbUser.role !== UserRole.ADMIN) {
     redirect("/");
   }
 
