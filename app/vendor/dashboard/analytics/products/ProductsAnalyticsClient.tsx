@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { DatePickerWithRange } from "@/app/components/DatePickerWithRange";
+import { DateRange } from "react-day-picker";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, PieChart, Pie, Cell, Legend } from "recharts";
@@ -16,6 +17,13 @@ export default function ProductsAnalyticsClient() {
     from: new Date(new Date().setDate(new Date().getDate() - 30)),
     to: new Date(),
   });
+  
+  // Create a wrapper function to adapt the setState to match the expected type
+  const handleDateChange = (date: DateRange | undefined) => {
+    if (date && date.from && date.to) {
+      setDateRange({ from: date.from, to: date.to });
+    }
+  };
   
   const { analytics, isLoading, error } = useVendorAnalytics({ 
     dateRange,
@@ -93,7 +101,7 @@ export default function ProductsAnalyticsClient() {
             Track your product performance, views, and sales metrics
           </p>
         </div>
-        <DatePickerWithRange date={dateRange} setDate={setDateRange} />
+        <DatePickerWithRange date={dateRange} setDate={handleDateChange} />
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

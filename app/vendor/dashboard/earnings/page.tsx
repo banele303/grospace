@@ -4,6 +4,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+// Define custom interface until it's added to Prisma schema
+interface VendorPayout {
+  id: string;
+  amount: number;
+  method: string;
+  status: string;
+  createdAt: Date;
+  vendorId: string;
+}
+
 import { 
   DollarSign, 
   CreditCard,
@@ -73,14 +83,23 @@ async function getVendorEarnings(vendorId: string) {
     total: earnings.length,
     pending: earnings.filter(e => e.status === 'PENDING').length,
     paid: earnings.filter(e => e.status === 'PAID').length,
-    processing: earnings.filter(e => e.status === 'PROCESSING').length,
+    // Remove or comment out processing since it's not in the EarningStatus enum
+    // processing: earnings.filter(e => e.status === 'PROCESSING').length,
+    cancelled: earnings.filter(e => e.status === 'CANCELLED').length,
   };
 
   // Get actual payout data from database
-  const payouts = await prisma.vendorPayout.findMany({
-    where: { vendorId },
-    orderBy: { createdAt: 'desc' },
-  }).catch(() => []); // Return empty array if table doesn't exist yet
+  let payouts = [];
+  try {
+    // @ts-ignore - This will work once the VendorPayout model is added to the schema
+    payouts = await prisma.vendorPayout?.findMany({
+      where: { vendorId },
+      orderBy: { createdAt: 'desc' },
+    }) || [];
+  } catch (error) {
+    console.error("Error fetching vendor payouts:", error);
+    // Return empty array if table doesn't exist yet
+  }
 
   return {
     earnings,
@@ -98,8 +117,8 @@ function getStatusIcon(status: string) {
   switch (status) {
     case 'PENDING':
       return <Clock className="h-4 w-4 text-yellow-500" />;
-    case 'PROCESSING':
-      return <AlertCircle className="h-4 w-4 text-blue-500" />;
+    case 'CANCELLED':
+      return <AlertCircle className="h-4 w-4 text-red-500" />;
     case 'PAID':
       return <CheckCircle className="h-4 w-4 text-green-500" />;
     default:
@@ -111,8 +130,8 @@ function getStatusColor(status: string) {
   switch (status) {
     case 'PENDING':
       return 'bg-yellow-100 text-yellow-800';
-    case 'PROCESSING':
-      return 'bg-blue-100 text-blue-800';
+    case 'CANCELLED':
+      return 'bg-red-100 text-red-800';
     case 'PAID':
       return 'bg-green-100 text-green-800';
     default:
@@ -314,7 +333,7 @@ export default async function VendorEarningsPage() {
                         </TableCell>
                         <TableCell>
                           <span className="font-medium text-agricultural-800">
-                            {formatPrice(earning.grossAmount)}
+                            {formatPrice(earning.amount)}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -372,7 +391,7 @@ export default async function VendorEarningsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {data.payouts.map((payout) => (
+                {data.payouts.map((payout: VendorPayout) => (
                   <div key={payout.id} className="flex items-center justify-between p-4 bg-agricultural-50 rounded-lg">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-agricultural-100 rounded-lg flex items-center justify-center">
@@ -383,7 +402,7 @@ export default async function VendorEarningsPage() {
                           {payout.method}
                         </p>
                         <p className="text-sm text-agricultural-600">
-                          {payout.date.toLocaleDateString()}
+                          {new Date(payout.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                     </div>

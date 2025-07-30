@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     // Check if user already has a vendor profile
     const existingUser = await prisma.user.findUnique({ 
       where: { id: kindeUser.id },
-      include: { vendors: true }
+      include: { vendors: true } // Using vendors plural to match Prisma schema
     });
     
     if (existingUser?.vendors && existingUser.vendors.length > 0) {

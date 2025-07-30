@@ -8,29 +8,8 @@ import OrdersTable from "../components/OrdersTable";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-// Type definitions for order items
-type OrderItem = {
-  id: string;
-  price: number;
-  quantity: number;
-  createdAt: string;
-  vendorId: string;
-  order: {
-    id: string;
-    status: string;
-    user: {
-      id: string;
-      firstName: string | null;
-      lastName: string | null;
-      email: string;
-    };
-  };
-  product: {
-    id: string;
-    name: string;
-    images?: string[];
-  };
-};
+// Import OrderItem type from the shared component to ensure consistency
+import { OrderItem } from "../components/OrdersTable";
 
 async function getDeliveredOrders(vendorId: string) {
   noStore();
@@ -53,11 +32,8 @@ async function getDeliveredOrders(vendorId: string) {
     orderBy: { createdAt: 'desc' },
   });
 
-  // Transform the Date objects to strings to match the OrderItem type
-  const orders = ordersData.map(order => ({
-    ...order,
-    createdAt: order.createdAt.toISOString(),
-  }));
+  // Keep the original Date objects as required by the OrderItem type
+  const orders = ordersData;
 
   // Calculate total revenue from delivered orders
   const totalRevenue = orders.reduce((sum, order) => sum + (order.price * order.quantity), 0);

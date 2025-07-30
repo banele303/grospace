@@ -8,14 +8,14 @@ async function main() {
       email: 'alexsouthflow@gmail.com'
     },
     include: {
-      vendor: true
+      vendors: true
     }
   });
 
   console.log('User data:', JSON.stringify(user, null, 2));
   
-  if (user?.vendor) {
-    console.log('\nVendor data:', JSON.stringify(user.vendor, null, 2));
+  if (user?.vendors && user.vendors.length > 0) {
+    console.log('\nVendor data:', JSON.stringify(user.vendors, null, 2));
   } else {
     console.log('\nNo vendor data found for this user');
   }

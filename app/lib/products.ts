@@ -35,6 +35,7 @@ export async function getFeaturedProducts(currentProductId: string): Promise<Pro
         views: true,
         createdAt: true,
         updatedAt: true,
+        organic: true,
       }
     });
     

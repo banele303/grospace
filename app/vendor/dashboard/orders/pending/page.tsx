@@ -61,7 +61,7 @@ async function getPendingOrders(vendorId: string): Promise<OrderItem[]> {
     id: order.id,
     price: order.price,
     quantity: order.quantity,
-    createdAt: order.createdAt.toISOString(), // Convert Date to string as required by OrderItem
+    createdAt: order.createdAt, // Keep as Date to match OrderItem type
     order: {
       id: order.order.id,
       status: order.order.status,

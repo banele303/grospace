@@ -389,6 +389,7 @@ model Vendor {
   farmLocation    FarmLocation? @relation(fields: [farmLocationId], references: [id])
   orderItems      OrderItem[]
   earnings        VendorEarning[]
+  payouts         VendorPayout[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -461,4 +462,20 @@ enum EarningStatus {
   PENDING
   PAID
   CANCELLED
+}
+
+model VendorPayout {
+  id            String    @id @default(cuid())
+  vendorId      String
+  vendor        Vendor    @relation(fields: [vendorId], references: [id])
+  amount        Int
+  method        String    @default("bank_transfer")
+  description   String?
+  reference     String?
+  status        String    @default("pending") // pending, completed, failed
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  completedAt   DateTime?
+
+  @@index([vendorId])
 }
