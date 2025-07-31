@@ -3,16 +3,16 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import { useAdminStatus } from "@/app/hooks/useAdminStatus";
 import { Loader2 } from "lucide-react";
 
 interface AdminGuardProps {
   children: React.ReactNode;
 }
 
-const ADMIN_EMAIL = "alexsouthflow3@gmail.com";
-
 export function AdminGuard({ children }: AdminGuardProps) {
   const { isAuthenticated, isLoading: authLoading, user } = useKindeBrowserClient();
+  const { isAdmin, isLoading: adminLoading } = useAdminStatus();
   const router = useRouter();
   const hasRedirected = useRef(false);
 
@@ -20,9 +20,18 @@ export function AdminGuard({ children }: AdminGuardProps) {
     // Prevent multiple redirects
     if (hasRedirected.current) return;
 
-    // Don't do anything while auth is loading
-    if (authLoading) {
-      console.log("AdminGuard: Auth loading...");
+    console.log("AdminGuard: Current state:", {
+      authLoading,
+      adminLoading,
+      isAuthenticated,
+      isAdmin,
+      userEmail: user?.email,
+      hasRedirected: hasRedirected.current
+    });
+
+    // Don't do anything while auth or admin status is loading
+    if (authLoading || adminLoading) {
+      console.log("AdminGuard: Still loading...");
       return;
     }
 
@@ -35,26 +44,27 @@ export function AdminGuard({ children }: AdminGuardProps) {
     }
 
     // If authenticated but not admin, redirect to home
-    if (user && user.email !== ADMIN_EMAIL) {
-      console.log(`AdminGuard: User ${user.email} is not admin, redirecting to home`);
+    if (!isAdmin) {
+      console.log("AdminGuard: User is not admin, redirecting to home");
       hasRedirected.current = true;
       router.replace("/");
       return;
     }
 
-    if (user && user.email === ADMIN_EMAIL) {
+    if (isAdmin) {
       console.log("AdminGuard: Admin access granted");
     }
-  }, [authLoading, isAuthenticated, user, router]);
+  }, [authLoading, adminLoading, isAuthenticated, isAdmin, router]);
 
   // Show loading while checking authentication or redirecting
-  if (authLoading || hasRedirected.current) {
+  if (authLoading || adminLoading || hasRedirected.current) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
           <p className="text-muted-foreground">
-            {hasRedirected.current ? "Redirecting..." : "Loading authentication..."}
+            {hasRedirected.current ? "Redirecting..." : 
+             authLoading ? "Loading authentication..." : "Verifying admin access..."}
           </p>
         </div>
       </div>
@@ -62,11 +72,18 @@ export function AdminGuard({ children }: AdminGuardProps) {
   }
 
   // If we reach here and user is authenticated and is admin, show content
-  if (isAuthenticated && user?.email === ADMIN_EMAIL) {
+  if (isAuthenticated && isAdmin) {
+    console.log("AdminGuard: Rendering admin content");
     return <>{children}</>;
   }
 
   // Show access denied for any other case
+  console.log("AdminGuard: Showing access denied", { 
+    isAuthenticated, 
+    isAdmin,
+    userEmail: user?.email,
+    hasUser: !!user 
+  });
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-center">
