@@ -11,7 +11,7 @@ import {
   XCircle 
 } from "lucide-react";
 import { getAdminStats } from "@/app/lib/admin-actions";
-import { AdminGuard } from "@/app/components/admin/AdminGuard";
+
 import Link from "next/link";
 import { formatPrice } from "@/app/lib/utils";
 import { unstable_noStore as noStore } from "next/cache";
@@ -24,7 +24,7 @@ export default async function AdminDashboard() {
   const stats = await getAdminStats();
 
   return (
-    <AdminGuard>
+   
       <div className="space-y-6">
         {/* Admin Debug Tool */}
         <AdminChecker />
@@ -218,6 +218,6 @@ export default async function AdminDashboard() {
           </Card>
         </div>
       </div>
-    </AdminGuard>
+    
   );
 }
