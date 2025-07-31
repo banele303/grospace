@@ -51,6 +51,7 @@ export async function getCurrentUser(includeVendor: boolean = false) {
             name: true,
             email: true,
             approved: true,
+            userId: true, // Make sure userId is included
             // Add other vendor fields you need
           }
         }

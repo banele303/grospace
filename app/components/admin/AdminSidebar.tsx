@@ -87,8 +87,8 @@ export function AdminSidebar() {
           <Image
             src="/grospace-log.png"
             alt="GroSpace Logo"
-            width={150}
-            height={40}
+            width={110}
+            height={30}
             className="object-contain"
           />
           <div className="hidden lg:block">

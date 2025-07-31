@@ -27,10 +27,13 @@ export default async function VendorLayout({
   // The dashboard itself will handle the pending state
   
   // Pass only the necessary data from server to client components
+  // Make sure user email is available and passed correctly
+  const userEmail = user.email || '';
+  
   return (
     <VendorLayoutClient 
       vendorName={vendor.name} 
-      userEmail={user.email || ''}
+      userEmail={userEmail}
     >
       {children}
     </VendorLayoutClient>

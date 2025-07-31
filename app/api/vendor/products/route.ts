@@ -39,14 +39,21 @@ const createProductSchema = z.object({
   images: z.array(z.string()).min(1, "At least one image is required"),
   status: z.enum(["draft", "published", "archived"]).default("draft"),
   vendorId: z.string(),
+  userId: z.string(), // User ID is required
   sku: z.string().optional(), // Optional in schema, will generate if not provided
 });
 
 export async function POST(req: NextRequest) {
   try {
-    const { vendor } = await requireVendor();
+    const { vendor, user } = await requireVendor();
     
     const body = await req.json();
+    // Add user.id to body if userId is not present
+    if (!body.userId && user && user.id) {
+      body.userId = user.id;
+      console.log("Added userId from authenticated user:", user.id);
+    }
+    
     const validatedData = createProductSchema.parse(body);
 
     // Ensure the vendor can only create products for themselves
@@ -136,8 +143,60 @@ export async function POST(req: NextRequest) {
     if (validatedData.minOrderQuantity) productData.minOrderQuantity = validatedData.minOrderQuantity;
     if (validatedData.maxOrderQuantity) productData.maxOrderQuantity = validatedData.maxOrderQuantity;
 
+    // Check if userId is present
+    if (!productData.userId) {
+      // If userId is missing, use the one from the vendor object from requireVendor
+      console.log("UserId missing in request, using vendor.userId instead:", vendor.userId);
+      productData.userId = vendor.userId;
+      
+      // If still no userId, return an error
+      if (!productData.userId) {
+        return NextResponse.json(
+          { error: "User ID is required to create a product" },
+          { status: 400 }
+        );
+      }
+    }
+    
+    // Filter out any invalid image URLs (blob URLs or placeholders)
+    const invalidImages = productData.images.filter(url => 
+      url.startsWith('blob:') || 
+      url === 'https://placehold.co/600x400?text=Product+Image'
+    );
+    
+    if (invalidImages.length > 0) {
+      console.warn("Invalid images detected and filtered out:", invalidImages);
+    }
+    
+    productData.images = productData.images.filter(url => 
+      !url.startsWith('blob:') && 
+      url !== 'https://placehold.co/600x400?text=Product+Image'
+    );
+    
+    // Check if we have valid images after filtering
+    if (productData.images.length === 0) {
+      return NextResponse.json(
+        { 
+          error: "No valid images provided. Please upload product images using the FileUpload component.",
+          details: "The temporary blob URLs cannot be stored in the database. Please use the provided image upload functionality."
+        },
+        { status: 400 }
+      );
+    }
+
+    // Remove userId and vendorId from productData
+    const { userId, vendorId, ...productDataWithoutIds } = productData;
+    
     const product = await prisma.product.create({
-      data: productData
+      data: {
+        ...productDataWithoutIds,
+        user: {
+          connect: { id: userId }
+        },
+        vendor: {
+          connect: { id: vendorId }
+        }
+      }
     });
 
     return NextResponse.json(product, { status: 201 });
@@ -149,6 +208,22 @@ export async function POST(req: NextRequest) {
         { error: "Validation error", details: error.errors },
         { status: 400 }
       );
+    }
+    
+    // Better error handling for Prisma errors
+    if (error instanceof Error) {
+      // Check if it's a Prisma error
+      if (error.name === "PrismaClientKnownRequestError" || 
+          error.name === "PrismaClientValidationError") {
+        return NextResponse.json(
+          { 
+            error: "Database error", 
+            message: error.message,
+            details: "There might be an issue with the data format or required relationships. Please check all required fields."
+          },
+          { status: 400 }
+        );
+      }
     }
 
     return NextResponse.json(

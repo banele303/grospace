@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,27 +12,34 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Upload,
   Save,
   Eye,
-  X,
   Plus,
   Loader2
 } from "lucide-react";
 import { toast } from "sonner";
-import JoditEditor from "jodit-react";
-import { useTheme } from "next-themes";
+import dynamic from "next/dynamic";
+import { FileUpload } from "@/app/components/FileUpload";
+
+// Dynamically import JoditEditor with no SSR to avoid 'self is not defined' error
+const JoditEditor = dynamic(() => import("jodit-react"), {
+  ssr: false,
+});
 
 interface CreateProductFormProps {
   vendorId: string;
+  userId?: string; // Make it optional for backward compatibility
   categories: string[];
   seasonality: string[];
 }
 
-export function CreateProductForm({ vendorId, categories, seasonality }: CreateProductFormProps) {
+export function CreateProductForm({ vendorId, userId, categories, seasonality }: CreateProductFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [images, setImages] = useState<string[]>([]);
+  
+  // Debug userId
+  console.log("CreateProductForm received userId:", userId);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -56,23 +63,15 @@ export function CreateProductForm({ vendorId, categories, seasonality }: CreateP
     }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      // In a real app, you'd upload to a cloud service like Cloudinary or AWS S3
-      // For now, we'll simulate with placeholder URLs
-      const newImages = Array.from(files).map((file, index) => 
-        URL.createObjectURL(file)
-      );
-      setImages(prev => [...prev, ...newImages].slice(0, 5)); // Max 5 images
-    }
+  const handleImageUpload = (url: string) => {
+    setImages(prev => [...prev, url].slice(0, 5)); // Max 5 images
   };
 
-  const removeImage = (index: number) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
+  const removeImage = (url: string) => {
+    setImages(prev => prev.filter(image => image !== url));
   };
 
-  const handleSubmit = async (e: React.FormEvent, publish: boolean = false) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, publish = false) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -80,12 +79,53 @@ export function CreateProductForm({ vendorId, categories, seasonality }: CreateP
       // Validate required fields
       if (!formData.name || !formData.description || !formData.price || !formData.category) {
         toast.error("Please fill in all required fields");
+        setIsLoading(false);
         return;
       }
 
       if (images.length === 0) {
         toast.error("Please upload at least one product image");
+        setIsLoading(false);
         return;
+      }
+      
+      // Validate image URLs - make sure they're not blob URLs
+      const invalidImages = images.filter(url => url.startsWith('blob:'));
+      if (invalidImages.length > 0) {
+        toast.error("Some images are not properly uploaded. Please use the provided upload component.");
+        setIsLoading(false);
+        return;
+      }
+
+      // Validate numeric fields
+      if (isNaN(parseFloat(formData.price)) || parseFloat(formData.price) <= 0) {
+        toast.error("Price must be a valid positive number");
+        setIsLoading(false);
+        return;
+      }
+      
+      if (isNaN(parseInt(formData.stock)) || parseInt(formData.stock) < 0) {
+        toast.error("Stock must be a valid non-negative number");
+        setIsLoading(false);
+        return;
+      }
+
+      // Make sure we have a userId
+      let effectiveUserId = userId;
+      if (!effectiveUserId) {
+        console.warn("userId is missing in props, fetching user data from API");
+        
+        try {
+          // Get current user before submitting
+          const userResponse = await fetch("/api/auth/me");
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+            effectiveUserId = userData.id;
+            console.log("Retrieved userId from API:", effectiveUserId);
+          }
+        } catch (err) {
+          console.error("Failed to fetch current user:", err);
+        }
       }
 
       const productData = {
@@ -97,8 +137,12 @@ export function CreateProductForm({ vendorId, categories, seasonality }: CreateP
         maxOrderQuantity: formData.maxOrderQuantity ? parseInt(formData.maxOrderQuantity) : null,
         images,
         vendorId,
+        userId: effectiveUserId, // Use the effectiveUserId (either from props or fetched from API)
         status: publish ? "published" : formData.status
       };
+      
+      // Debug productData with userId
+      console.log("Product data being sent:", { ...productData, userId });
 
       const response = await fetch("/api/vendor/products", {
         method: "POST",
@@ -109,7 +153,12 @@ export function CreateProductForm({ vendorId, categories, seasonality }: CreateP
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create product");
+        const errorData = await response.json().catch(() => null);
+        const errorMessage = errorData?.error || "Failed to create product";
+        const errorDetails = errorData?.details || "";
+        
+        console.error("API error:", errorData);
+        throw new Error(`${errorMessage}${errorDetails ? `: ${errorDetails}` : ""}`);
       }
 
       const result = await response.json();
@@ -119,7 +168,7 @@ export function CreateProductForm({ vendorId, categories, seasonality }: CreateP
       
     } catch (error) {
       console.error("Error creating product:", error);
-      toast.error("Failed to create product. Please try again.");
+      toast.error(error instanceof Error ? error.message : "Failed to create product. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -169,31 +218,33 @@ export function CreateProductForm({ vendorId, categories, seasonality }: CreateP
           <div className="space-y-2">
             <Label htmlFor="description">Description *</Label>
             <div className="jodit-container">
-              <JoditEditor
-                ref={useRef(null)}
-                value={formData.description}
-                config={{
-                  readonly: false,
-                  placeholder: "Describe your product, growing conditions, harvest time, etc.",
-                  height: 300,
-                  theme: "auto",
-                  uploader: {
-                    insertImageAsBase64URI: true
-                  },
-                  buttons: [
-                    'source', '|',
-                    'bold', 'italic', 'underline', 'strikethrough', '|',
-                    'ul', 'ol', '|',
-                    'font', 'fontsize', 'paragraph', '|',
-                    'table', 'link', 'image', '|',
-                    'align', '|',
-                    'undo', 'redo'
-                  ],
-                  toolbarAdaptive: true
-                }}
-                onBlur={(newContent) => handleInputChange("description", newContent)}
-                onChange={(newContent) => {}}
-              />
+              {typeof window !== 'undefined' && (
+                <JoditEditor
+                  ref={useRef(null)}
+                  value={formData.description}
+                  config={{
+                    readonly: false,
+                    placeholder: "Describe your product, growing conditions, harvest time, etc.",
+                    height: 300,
+                    theme: "auto",
+                    uploader: {
+                      insertImageAsBase64URI: true
+                    },
+                    buttons: [
+                      'source', '|',
+                      'bold', 'italic', 'underline', 'strikethrough', '|',
+                      'ul', 'ol', '|',
+                      'font', 'fontsize', 'paragraph', '|',
+                      'table', 'link', 'image', '|',
+                      'align', '|',
+                      'undo', 'redo'
+                    ],
+                    toolbarAdaptive: true
+                  }}
+                  onBlur={(newContent) => handleInputChange("description", newContent)}
+                  onChange={(newContent) => {}}
+                />
+              )}
             </div>
           </div>
         </CardContent>
@@ -304,47 +355,14 @@ export function CreateProductForm({ vendorId, categories, seasonality }: CreateP
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {images.map((image, index) => (
-              <div key={index} className="relative group">
-                <Image
-                  src={image}
-                  alt={`Product ${index + 1}`}
-                  className="w-full h-24 object-cover rounded-lg border border-agricultural-200"
-                  width={100}
-                  height={96}
-                />
-                <button
-                  type="button"
-                  onClick={() => removeImage(index)}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-                {index === 0 && (
-                  <Badge className="absolute bottom-1 left-1 text-xs bg-agricultural-500">
-                    Main
-                  </Badge>
-                )}
-              </div>
-            ))}
-            
-            {images.length < 5 && (
-              <label className="w-full h-24 border-2 border-dashed border-agricultural-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-agricultural-400 transition-colors">
-                <div className="text-center">
-                  <Upload className="h-6 w-6 text-agricultural-400 mx-auto mb-1" />
-                  <span className="text-xs text-agricultural-600">Upload</span>
-                </div>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-              </label>
-            )}
-          </div>
+          {typeof window !== 'undefined' && (
+            <FileUpload 
+              onChange={handleImageUpload}
+              onRemove={removeImage}
+              value={images}
+              disabled={isLoading}
+            />
+          )}
         </CardContent>
       </Card>
 
@@ -418,7 +436,10 @@ export function CreateProductForm({ vendorId, categories, seasonality }: CreateP
           
           <Button
             type="button"
-            onClick={(e) => handleSubmit(e, true)}
+            onClick={() => {
+              const fakeEvent = { preventDefault: () => {} } as React.FormEvent<HTMLFormElement>;
+              handleSubmit(fakeEvent, true);
+            }}
             disabled={isLoading}
             className="bg-agricultural-500 hover:bg-agricultural-600"
           >

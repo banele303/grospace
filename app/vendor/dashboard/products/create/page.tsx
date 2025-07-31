@@ -16,7 +16,7 @@ import {
   Clock
 } from "lucide-react";
 import Link from "next/link";
-import { CreateProductForm } from "@/app/components/vendor/CreateProductForm";
+import { CreateProductClient } from "@/app/components/vendor/CreateProductClient";
 import { redirect } from "next/navigation";
 import { UserRole } from "@prisma/client";
 import { PendingApprovalCard } from "@/app/components/vendor/PendingApprovalCard";
@@ -61,6 +61,10 @@ export default async function CreateProductPage() {
   }
 
   const { user, vendor } = vendorStatus;
+  
+  // Debug user object
+  console.log("User from vendorStatus:", user);
+  console.log("Vendor from vendorStatus:", vendor);
 
   return (
     <div className="space-y-8">
@@ -85,7 +89,12 @@ export default async function CreateProductPage() {
       {/* Product Creation Form */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <CreateProductForm vendorId={vendor.id} categories={categories} seasonality={seasonality} />
+          <CreateProductClient 
+            vendorId={vendor.id} 
+            userId={user.id || vendor.userId} // Try to use user.id or fall back to vendor.userId
+            categories={categories} 
+            seasonality={seasonality} 
+          />
         </div>
 
         {/* Help Sidebar */}

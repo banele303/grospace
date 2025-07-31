@@ -96,7 +96,7 @@ export function AdminHeader() {
     <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-slate-200/50 dark:border-slate-700/50 h-16 flex items-center justify-between px-6 gap-4 sticky top-0 z-40">
       {/* Logo */}
       <Link href="/admin" className="flex items-center">
-        <div className="relative w-[120px] h-[40px]">
+        <div className="relative w-[90px] h-[30px]">
           <Image
             src="/gigalogo.jpeg"
             alt="Giga Logo"
@@ -104,7 +104,7 @@ export function AdminHeader() {
             className="object-contain block dark:hidden"
             priority
             quality={90}
-            sizes="120px"
+            sizes="90px"
           />
           <Image
             src="/gigadarklogo.jpeg"
@@ -113,7 +113,7 @@ export function AdminHeader() {
             className="object-contain hidden dark:block"
             priority
             quality={90}
-            sizes="120px"
+            sizes="90px"
           />
         </div>
         <span className="ml-2 font-bold text-lg bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 text-transparent bg-clip-text hidden md:inline">

@@ -65,7 +65,6 @@ export function VendorHeaderClient({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar className="h-10 w-10">
-                <AvatarImage src="/placeholder-avatar.jpg" alt={vendorName} />
                 <AvatarFallback className="text-lg font-semibold">
                   {vendorName.charAt(0).toUpperCase()}
                 </AvatarFallback>
@@ -76,9 +75,11 @@ export function VendorHeaderClient({
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">{vendorName}</p>
-                <p className="text-xs leading-none text-muted-foreground">
-                  {userEmail}
-                </p>
+                {userEmail && (
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {userEmail}
+                  </p>
+                )}
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
