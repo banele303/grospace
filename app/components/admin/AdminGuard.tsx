@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
-import { useAdminStatus } from "@/app/hooks/useAdminStatus";
 import { Loader2 } from "lucide-react";
 
 interface AdminGuardProps {
@@ -12,59 +11,92 @@ interface AdminGuardProps {
 
 export function AdminGuard({ children }: AdminGuardProps) {
   const { isAuthenticated, isLoading: authLoading, user } = useKindeBrowserClient();
-  const { isAdmin, isLoading: adminLoading, error } = useAdminStatus();
   const router = useRouter();
-  const [hasRedirected, setHasRedirected] = useState(false);
+  const [adminStatus, setAdminStatus] = useState<{
+    isAdmin: boolean;
+    isLoading: boolean;
+    error: string | null;
+  }>({
+    isAdmin: false,
+    isLoading: true,
+    error: null,
+  });
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
+  // Check admin status when user is authenticated
   useEffect(() => {
-    // Prevent multiple redirects
-    if (hasRedirected) return;
+    async function checkAdminStatus() {
+      if (!isAuthenticated || !user?.id) return;
 
-    // Wait for authentication to load
+      try {
+        setAdminStatus(prev => ({ ...prev, isLoading: true, error: null }));
+        console.log("AdminGuard: Checking admin status for user:", user.email);
+        
+        const response = await fetch('/api/debug/admin');
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log("AdminGuard: Admin check result:", data);
+          setAdminStatus({
+            isAdmin: data.adminStatus || false,
+            isLoading: false,
+            error: null,
+          });
+        } else {
+          console.error("AdminGuard: Admin check failed:", response.status);
+          setAdminStatus({
+            isAdmin: false,
+            isLoading: false,
+            error: `API call failed: ${response.status}`,
+          });
+        }
+      } catch (error) {
+        console.error("AdminGuard: Error checking admin status:", error);
+        setAdminStatus({
+          isAdmin: false,
+          isLoading: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    }
+
+    if (isAuthenticated && user?.id && !hasCheckedAuth) {
+      checkAdminStatus();
+      setHasCheckedAuth(true);
+    }
+  }, [isAuthenticated, user?.id, hasCheckedAuth]);
+
+  // Handle authentication and authorization
+  useEffect(() => {
     if (authLoading) {
-      console.log("AdminGuard: Waiting for auth to load...");
+      console.log("AdminGuard: Auth loading...");
       return;
     }
 
-    // If not authenticated, redirect to login once
     if (!isAuthenticated) {
-      console.log("AdminGuard: User not authenticated, redirecting to login");
-      setHasRedirected(true);
-      window.location.href = "/api/auth/login?post_login_redirect_url=%2Fadmin";
+      console.log("AdminGuard: Not authenticated, redirecting to login");
+      // Use router.push instead of window.location.href to avoid full page reload
+      router.replace("/api/auth/login?post_login_redirect_url=%2Fadmin");
       return;
     }
 
-    // User is authenticated, now check admin status
-    console.log("AdminGuard: User authenticated, checking admin status...");
-
-    // Wait for admin check to complete
-    if (adminLoading) {
-      console.log("AdminGuard: Admin check in progress...");
+    // User is authenticated, check if admin check is complete
+    if (!adminStatus.isLoading && !adminStatus.isAdmin && !adminStatus.error) {
+      console.log("AdminGuard: User is not admin, redirecting to home");
+      router.replace("/");
       return;
     }
 
-    // If authenticated but not admin, redirect to home
-    if (isAuthenticated && !adminLoading && !isAdmin && !error) {
-      console.log("AdminGuard: User authenticated but not admin, redirecting to home");
-      setHasRedirected(true);
-      router.push("/");
+    if (adminStatus.error) {
+      console.error("AdminGuard: Admin check error, redirecting to home");
+      router.replace("/");
       return;
     }
 
-    // If there's an error checking admin status, redirect to home
-    if (error && error !== 'Not authenticated') {
-      console.error("AdminGuard: Error checking admin status:", error);
-      setHasRedirected(true);
-      router.push("/");
-      return;
-    }
-
-    // Success case - user is authenticated and admin
-    if (isAuthenticated && !adminLoading && isAdmin) {
+    if (adminStatus.isAdmin) {
       console.log("AdminGuard: Admin access granted");
-      setHasRedirected(false);
     }
-  }, [isAuthenticated, isAdmin, authLoading, adminLoading, error, router, hasRedirected]);
+  }, [authLoading, isAuthenticated, adminStatus, router]);
 
   // Show loading while checking authentication
   if (authLoading) {
@@ -91,7 +123,7 @@ export function AdminGuard({ children }: AdminGuardProps) {
   }
 
   // Show loading while checking admin status
-  if (adminLoading) {
+  if (adminStatus.isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -103,15 +135,23 @@ export function AdminGuard({ children }: AdminGuardProps) {
   }
 
   // Show access denied if not admin
-  if (!isAdmin) {
+  if (!adminStatus.isAdmin) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Access Denied</h2>
           <p className="text-muted-foreground">You don&apos;t have permission to access this area.</p>
-          {error && (
-            <p className="text-red-500 text-sm mt-2">Error: {error}</p>
+          {adminStatus.error && (
+            <p className="text-red-500 text-sm mt-2">Error: {adminStatus.error}</p>
           )}
+          <div className="mt-4">
+            <button
+              onClick={() => router.push("/")}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md"
+            >
+              Go Home
+            </button>
+          </div>
         </div>
       </div>
     );
