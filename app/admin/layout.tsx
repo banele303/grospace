@@ -1,4 +1,4 @@
-import ServerAdminGuard from "@/app/components/ServerAdminGuard";
+import { AdminGuard } from "@/app/components/admin/AdminGuard";
 import { AdminSidebar } from "@/app/components/admin/AdminSidebar";
 import { AdminHeader } from "@/app/components/admin/AdminHeader";
 
@@ -8,7 +8,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ServerAdminGuard>
+    <AdminGuard>
       <div className="flex h-screen bg-gray-50 dark:g-background overflow-hidden">
         <AdminSidebar />
         <div className="flex flex-col flex-1 min-w-0">
@@ -18,6 +18,6 @@ export default function AdminLayout({
           </main>
         </div>
       </div>
-    </ServerAdminGuard>
+    </AdminGuard>
   );
 }
