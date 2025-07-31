@@ -24,16 +24,41 @@ export function AdminGuard({ children }: AdminGuardProps) {
   
   useEffect(() => {
     // Only run this check once
-    if (checkedOnce) return;
+    if (checkedOnce) {
+      console.log("AdminGuard: Already checked once, skipping");
+      return;
+    }
+    
+    console.log("AdminGuard: Current state:", { 
+      isLoading, 
+      adminLoading, 
+      user: user ? { id: user.id, email: user.email } : null,
+      isAdmin
+    });
     
     // Wait for everything to load first
-    if (isLoading || adminLoading) return;
+    if (isLoading || adminLoading) {
+      console.log("AdminGuard: Still loading, waiting...");
+      return;
+    }
+    
+    const ADMIN_EMAIL = "alexsouthflow3@gmail.com";
+    const directEmailCheck = user?.email === ADMIN_EMAIL;
     
     // Now we can check
     if (!user) {
+      console.log("AdminGuard: No user, redirecting to login");
       router.push('/api/auth/login?post_login_redirect_url=%2Fadmin');
-    } else if (!isAdmin) {
+    } else if (!isAdmin && !directEmailCheck) {
+      console.log("AdminGuard: Not admin, redirecting to home", { 
+        userEmail: user.email, 
+        adminEmail: ADMIN_EMAIL,
+        isAdmin,
+        directEmailCheck
+      });
       router.push('/');
+    } else {
+      console.log("AdminGuard: User is admin, showing content");
     }
     
     // Mark as checked so we don't do this again
@@ -52,8 +77,13 @@ export function AdminGuard({ children }: AdminGuardProps) {
     );
   }
   
-  // If admin, show content
-  if (user && isAdmin) {
+  // If admin, show content - use both hook and direct email check
+  const ADMIN_EMAIL = "alexsouthflow3@gmail.com";
+  const directEmailCheck = user?.email === ADMIN_EMAIL;
+  
+  
+  if (user && (isAdmin || directEmailCheck)) {
+    console.log("AdminGuard: Rendering admin content");
     return <>{children}</>;
   }
   
