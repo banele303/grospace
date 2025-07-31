@@ -86,7 +86,7 @@ export default async function VendorPendingPage() {
               <div className="text-left space-y-2">
                 <p className="text-sm text-green-800 dark:text-green-200 flex items-center gap-2">
                   <Mail className="h-4 w-4" />
-                  You'll receive an email notification once your application is reviewed
+                  You&apos;ll receive an email notification once your application is reviewed
                 </p>
                 <p className="text-sm text-green-800 dark:text-green-200 flex items-center gap-2">
                   <Clock className="h-4 w-4" />
@@ -94,7 +94,7 @@ export default async function VendorPendingPage() {
                 </p>
                 <p className="text-sm text-green-800 dark:text-green-200 flex items-center gap-2">
                   <CheckCircle className="h-4 w-4" />
-                  Once approved, you'll have access to your vendor dashboard
+                  Once approved, you&apos;ll have access to your vendor dashboard
                 </p>
               </div>
             </div>

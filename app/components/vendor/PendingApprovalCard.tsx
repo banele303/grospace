@@ -74,7 +74,7 @@ export function PendingApprovalCard({
                 <div className="flex items-center gap-3">
                   <Mail className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   <span className="text-sm text-blue-800 dark:text-blue-200">
-                    You'll receive an email notification once approved
+                    You&apos;ll receive an email notification once approved
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -86,7 +86,7 @@ export function PendingApprovalCard({
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   <span className="text-sm text-blue-800 dark:text-blue-200">
-                    Once approved, you'll have full access to {feature}
+                    Once approved, you&apos;ll have full access to {feature}
                   </span>
                 </div>
               </div>

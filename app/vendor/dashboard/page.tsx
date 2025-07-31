@@ -329,7 +329,7 @@ export default async function VendorDashboard() {
           <CardHeader>
             <CardTitle className="text-blue-900">What happens next?</CardTitle>
             <CardDescription className="text-blue-700">
-              Here's what to expect during the approval process
+              Here&apos;s what to expect during the approval process
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

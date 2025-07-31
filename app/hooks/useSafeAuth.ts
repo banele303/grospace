@@ -19,13 +19,7 @@ export function useSafeAuth(): SafeAuthState {
   }, []);
 
   // Always call hooks, but handle errors gracefully
-  let kindeState;
-  try {
-    kindeState = useKindeBrowserClient();
-  } catch (error) {
-    console.error("Kinde client error:", error);
-    kindeState = { user: null, isLoading: false, isAuthenticated: false, error };
-  }
+  const kindeState = useKindeBrowserClient();
 
   // Add effect to retry getting auth state if not loading but no user
   useEffect(() => {
@@ -48,7 +42,7 @@ export function useSafeAuth(): SafeAuthState {
         retryCount
       });
     }
-  }, [isMounted, kindeState?.isLoading, kindeState?.isAuthenticated, kindeState?.user, retryCount]);
+  }, [isMounted, kindeState?.isLoading, kindeState?.isAuthenticated, kindeState?.user, retryCount, kindeState]);
 
   // Return safe state until we're on the client side
   if (!isMounted) {
