@@ -48,7 +48,7 @@ export function AdminGuard({ children }: AdminGuardProps) {
   }, [authLoading, isAuthenticated, user, router]);
 
   // Show loading while checking authentication or redirecting
-  if (authLoading || hasRedirected.current || !user) {
+  if (authLoading || hasRedirected.current) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
