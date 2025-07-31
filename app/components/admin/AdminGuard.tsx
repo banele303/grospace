@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "@/app/hooks/useAuthState";
@@ -19,12 +19,18 @@ export function AdminGuard({ children }: AdminGuardProps) {
   const { isAdmin, isLoading: adminLoading } = useAdminStatus();
   const router = useRouter();
   
-  // Only run once on client - no loops
-  const [checkedOnce, setCheckedOnce] = useState(false);
+  // Use a ref instead of state to prevent re-renders
+  const hasChecked = React.useRef(false);
   
   useEffect(() => {
-    // Only run this check once
-    if (checkedOnce) {
+    // Wait for everything to load first
+    if (isLoading || adminLoading) {
+      console.log("AdminGuard: Still loading, waiting...");
+      return;
+    }
+    
+    // Only run this check once after data is loaded
+    if (hasChecked.current) {
       console.log("AdminGuard: Already checked once, skipping");
       return;
     }
@@ -35,12 +41,6 @@ export function AdminGuard({ children }: AdminGuardProps) {
       user: user ? { id: user.id, email: user.email } : null,
       isAdmin
     });
-    
-    // Wait for everything to load first
-    if (isLoading || adminLoading) {
-      console.log("AdminGuard: Still loading, waiting...");
-      return;
-    }
     
     const ADMIN_EMAIL = "alexsouthflow3@gmail.com";
     const directEmailCheck = user?.email === ADMIN_EMAIL;
@@ -69,8 +69,8 @@ export function AdminGuard({ children }: AdminGuardProps) {
     }
     
     // Mark as checked so we don't do this again
-    setCheckedOnce(true);
-  }, [isLoading, adminLoading, user, isAdmin, router, checkedOnce]);
+    hasChecked.current = true;
+  }, [isLoading, adminLoading, user, isAdmin, router]);
   
   // Simple loading state
   if (isLoading || adminLoading) {
@@ -86,10 +86,9 @@ export function AdminGuard({ children }: AdminGuardProps) {
   
   // If admin, show content - use both hook and direct email check
   const ADMIN_EMAIL = "alexsouthflow3@gmail.com";
-  const directEmailCheck = user?.email === ADMIN_EMAIL;
+  const isAdminEmail = user?.email === ADMIN_EMAIL;
   
-  
-  if (user && (isAdmin || directEmailCheck)) {
+  if (user && (isAdmin || isAdminEmail)) {
     console.log("AdminGuard: Rendering admin content");
     return <>{children}</>;
   }
