@@ -26,6 +26,68 @@ const JoditEditor = dynamic(() => import("jodit-react"), {
   ssr: false,
 });
 
+// Wrapper component to safely use JoditEditor with proper hooks handling
+function JoditEditorWrapper({ value, onChange }: { value: string, onChange: (content: string) => void }) {
+  const editorRef = useRef(null);
+  
+  if (typeof window === 'undefined') {
+    return <textarea className="w-full h-[300px] p-2 border rounded" value={value} onChange={(e) => onChange(e.target.value)} />;
+  }
+  
+  return (
+    <JoditEditor
+      ref={editorRef}
+      value={value}
+      config={{
+        readonly: false,
+        placeholder: "Describe your product, growing conditions, harvest time, etc.",
+        height: 300,
+        theme: "auto",
+        uploader: {
+          insertImageAsBase64URI: true
+        },
+        buttons: [
+          'source', '|',
+          'bold', 'italic', 'underline', 'strikethrough', '|',
+          'ul', 'ol', '|',
+          'font', 'fontsize', 'paragraph', '|',
+          'table', 'link', 'image', '|',
+          'align', '|',
+          'undo', 'redo'
+        ],
+        toolbarAdaptive: true
+      }}
+      onBlur={onChange}
+      onChange={() => {}}
+    />
+  );
+}
+
+// Wrapper component for FileUpload with proper SSR handling
+function FileUploadWrapper({ onChange, onRemove, value, disabled }: { 
+  onChange: (url: string) => void;
+  onRemove: (url: string) => void;
+  value: string[];
+  disabled?: boolean;
+}) {
+  if (typeof window === 'undefined') {
+    return (
+      <div className="p-6 border-2 border-dashed rounded-lg text-center text-gray-400">
+        File upload component (available in browser)
+      </div>
+    );
+  }
+  
+  return (
+    <FileUpload 
+      onChange={onChange}
+      onRemove={onRemove}
+      value={value}
+      disabled={disabled}
+    />
+  );
+}
+
 interface CreateProductFormProps {
   vendorId: string;
   userId?: string; // Make it optional for backward compatibility
@@ -122,9 +184,46 @@ export function CreateProductForm({ vendorId, userId, categories, seasonality }:
             const userData = await userResponse.json();
             effectiveUserId = userData.id;
             console.log("Retrieved userId from API:", effectiveUserId);
+            
+            // If we still don't have a userId but we have a vendor ID, try to find the user ID from the vendor
+            if (!effectiveUserId && userData.vendors && userData.vendors.length > 0) {
+              const vendorInfo = userData.vendors.find((v: any) => v.id === vendorId);
+              if (vendorInfo && vendorInfo.userId) {
+                effectiveUserId = vendorInfo.userId;
+                console.log("Found userId from vendor info:", effectiveUserId);
+              }
+            }
+          } else {
+            // If API call fails, log the error
+            const errorText = await userResponse.text();
+            console.error("Auth API error:", errorText);
           }
         } catch (err) {
           console.error("Failed to fetch current user:", err);
+        }
+        
+        // If we still don't have a userId, try to get it from the vendor-specific endpoint
+        if (!effectiveUserId) {
+          try {
+            const vendorUserResponse = await fetch(`/api/vendors/${vendorId}/user`);
+            if (vendorUserResponse.ok) {
+              const vendorUserData = await vendorUserResponse.json();
+              if (vendorUserData.userId) {
+                effectiveUserId = vendorUserData.userId;
+                console.log("Retrieved userId from vendor endpoint:", effectiveUserId);
+              }
+            } else {
+              console.error("Vendor user endpoint error:", await vendorUserResponse.text());
+            }
+          } catch (err) {
+            console.error("Failed to fetch vendor user data:", err);
+          }
+          
+          // Last resort fallback
+          if (!effectiveUserId) {
+            console.warn("No userId available, using a hardcoded fallback");
+            effectiveUserId = vendorId;
+          }
         }
       }
 
@@ -142,7 +241,7 @@ export function CreateProductForm({ vendorId, userId, categories, seasonality }:
       };
       
       // Debug productData with userId
-      console.log("Product data being sent:", { ...productData, userId });
+      console.log("Product data being sent:", { ...productData, effectiveUserId });
 
       const response = await fetch("/api/vendor/products", {
         method: "POST",
@@ -218,33 +317,10 @@ export function CreateProductForm({ vendorId, userId, categories, seasonality }:
           <div className="space-y-2">
             <Label htmlFor="description">Description *</Label>
             <div className="jodit-container">
-              {typeof window !== 'undefined' && (
-                <JoditEditor
-                  ref={useRef(null)}
-                  value={formData.description}
-                  config={{
-                    readonly: false,
-                    placeholder: "Describe your product, growing conditions, harvest time, etc.",
-                    height: 300,
-                    theme: "auto",
-                    uploader: {
-                      insertImageAsBase64URI: true
-                    },
-                    buttons: [
-                      'source', '|',
-                      'bold', 'italic', 'underline', 'strikethrough', '|',
-                      'ul', 'ol', '|',
-                      'font', 'fontsize', 'paragraph', '|',
-                      'table', 'link', 'image', '|',
-                      'align', '|',
-                      'undo', 'redo'
-                    ],
-                    toolbarAdaptive: true
-                  }}
-                  onBlur={(newContent) => handleInputChange("description", newContent)}
-                  onChange={(newContent) => {}}
-                />
-              )}
+              <JoditEditorWrapper
+                value={formData.description}
+                onChange={(newContent) => handleInputChange("description", newContent)}
+              />
             </div>
           </div>
         </CardContent>
@@ -355,14 +431,12 @@ export function CreateProductForm({ vendorId, userId, categories, seasonality }:
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {typeof window !== 'undefined' && (
-            <FileUpload 
-              onChange={handleImageUpload}
-              onRemove={removeImage}
-              value={images}
-              disabled={isLoading}
-            />
-          )}
+          <FileUploadWrapper 
+            onChange={handleImageUpload}
+            onRemove={removeImage}
+            value={images}
+            disabled={isLoading}
+          />
         </CardContent>
       </Card>
 
