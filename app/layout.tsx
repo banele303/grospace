@@ -8,7 +8,7 @@ import { ourFileRouter } from "./api/uploadthing/core";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "sonner";
 import { ClientKindeProvider } from "@/app/components/providers/ClientKindeProvider";
-// import { PostHogProvider } from "@/components/providers/PostHogProvider";
+import { PostHogProvider } from "@/app/components/providers/PostHogProvider";
 import { CartProvider } from './context/CartContext';
 
 const inter = Inter({ subsets: ["latin"] });
@@ -45,7 +45,9 @@ export default function RootLayout({
           />
           <CartProvider>
         <ClientKindeProvider>
-          {children}
+          <PostHogProvider>
+            {children}
+          </PostHogProvider>
         </ClientKindeProvider>
         <Toaster position="top-center" richColors closeButton />
           </CartProvider>
