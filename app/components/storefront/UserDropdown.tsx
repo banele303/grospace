@@ -102,7 +102,7 @@ export function UserDropdown({ email, name, userImage }: iAppProps) {
           color: 'text-green-600',
           bgColor: 'bg-green-50',
           borderColor: 'border-green-200',
-          dashboardLink: '/profile'
+          dashboardLink: '/dashboard'
         };
     }
   };

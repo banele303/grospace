@@ -45,18 +45,25 @@ export function AdminGuard({ children }: AdminGuardProps) {
     const ADMIN_EMAIL = "alexsouthflow3@gmail.com";
     const directEmailCheck = user?.email === ADMIN_EMAIL;
     
+    console.log("AdminGuard: Detailed check", { 
+      hasUser: !!user,
+      userEmail: user?.email, 
+      adminEmail: ADMIN_EMAIL,
+      isAdmin,
+      directEmailCheck,
+      result: !user ? "redirect to login" : 
+              (!isAdmin && !directEmailCheck) ? "redirect to home" : 
+              "show admin content"
+    });
+    
     // Now we can check
     if (!user) {
       console.log("AdminGuard: No user, redirecting to login");
       router.push('/api/auth/login?post_login_redirect_url=%2Fadmin');
     } else if (!isAdmin && !directEmailCheck) {
-      console.log("AdminGuard: Not admin, redirecting to home", { 
-        userEmail: user.email, 
-        adminEmail: ADMIN_EMAIL,
-        isAdmin,
-        directEmailCheck
-      });
-      router.push('/');
+      console.log("AdminGuard: Not admin, redirecting to home");
+      // Use replace instead of push to avoid browser history issues
+      router.replace('/');
     } else {
       console.log("AdminGuard: User is admin, showing content");
     }
