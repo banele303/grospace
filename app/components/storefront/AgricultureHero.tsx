@@ -18,6 +18,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useVendorStatus } from "@/app/hooks/useVendorStatus";
 
 interface MarketplaceStats {
   vendorCount: number;

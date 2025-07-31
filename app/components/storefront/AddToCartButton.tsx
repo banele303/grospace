@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Package } from "lucide-react";
 import { toast } from "sonner";
-import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import { useSafeAuth } from "@/app/hooks/useSafeAuth";
 import { addItem } from "@/app/actions";
 import { useCart } from "@/app/context/CartContext";
 
@@ -17,10 +17,12 @@ interface AddToCartButtonProps {
 }
 
 export function AddToCartButton({ product }: AddToCartButtonProps) {
-  const { user } = useKindeBrowserClient();
+  const { user, isMounted } = useSafeAuth();
   const { refreshCart } = useCart();
 
   const handleAddToCart = async () => {
+    if (!isMounted) return;
+    
     try {
       const result = await addItem(product.id);
       if (result?.success) {

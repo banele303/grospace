@@ -13,7 +13,7 @@ interface UseAuthRedirectOptions {
 export function useAuthRedirect({
   redirectTo = '/api/auth/login',
   requiredAuth = true,
-  delay = 100
+  delay = 1000 // Increased delay to prevent loops
 }: UseAuthRedirectOptions = {}) {
   const { user, isAuthenticated, isLoading } = useKindeBrowserClient();
   const router = useRouter();
@@ -21,17 +21,37 @@ export function useAuthRedirect({
   const [shouldRedirect, setShouldRedirect] = useState(false);
 
   useEffect(() => {
-    if (!isLoading) {
-      setAuthChecked(true);
-      
-      if (requiredAuth && !isAuthenticated && !user) {
-        setShouldRedirect(true);
-        const timer = setTimeout(() => {
-          router.push(redirectTo);
-        }, delay);
-        return () => clearTimeout(timer);
+    // Give more time for auth to settle
+    const checkTimer = setTimeout(() => {
+      if (!isLoading) {
+        setAuthChecked(true);
+        
+        // Check server auth state before redirecting
+        fetch('/api/auth/setup')
+          .then(res => res.json())
+          .then(data => {
+            if (requiredAuth && !isAuthenticated && !user && !data.authenticated) {
+              setShouldRedirect(true);
+              const timer = setTimeout(() => {
+                router.push(redirectTo);
+              }, delay);
+              return () => clearTimeout(timer);
+            }
+          })
+          .catch(() => {
+            // If server check fails, use client state
+            if (requiredAuth && !isAuthenticated && !user) {
+              setShouldRedirect(true);
+              const timer = setTimeout(() => {
+                router.push(redirectTo);
+              }, delay);
+              return () => clearTimeout(timer);
+            }
+          });
       }
-    }
+    }, 500); // Wait 500ms before checking
+
+    return () => clearTimeout(checkTimer);
   }, [isAuthenticated, isLoading, user, requiredAuth, redirectTo, delay, router]);
 
   return {

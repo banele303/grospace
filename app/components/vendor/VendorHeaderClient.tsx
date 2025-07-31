@@ -26,13 +26,13 @@ export function VendorHeaderClient({
   userEmail: string;
 }) {
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 sm:px-6 lg:px-8 shadow-sm">
       {/* Left side - Mobile menu and title */}
       <div className="flex items-center gap-4">
         {/* Mobile menu */}
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="lg:hidden">
+            <Button variant="ghost" size="icon" className="lg:hidden h-9 w-9">
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
@@ -43,19 +43,19 @@ export function VendorHeaderClient({
 
         {/* Page title - hidden on mobile when menu is present */}
         <div className="hidden lg:block">
-          <h1 className="text-lg font-semibold">
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
             Vendor Dashboard
           </h1>
         </div>
       </div>
 
       {/* Right side actions - All icons moved to far right */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-6">
         {/* Theme Toggle */}
         <ThemeToggle />
         
         {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative">
+        <Button variant="ghost" size="icon" className="relative h-10 w-10">
           <Bell className="h-5 w-5" />
           <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full text-xs"></span>
         </Button>
@@ -63,16 +63,16 @@ export function VendorHeaderClient({
         {/* User menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8">
+            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Avatar className="h-10 w-10">
                 <AvatarImage src="/placeholder-avatar.jpg" alt={vendorName} />
-                <AvatarFallback>
+                <AvatarFallback className="text-lg font-semibold">
                   {vendorName.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end" forceMount>
+          <DropdownMenuContent className="w-64" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">{vendorName}</p>

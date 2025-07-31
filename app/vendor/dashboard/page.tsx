@@ -1,4 +1,4 @@
-import { requireVendor } from "@/app/lib/auth";
+import { getCurrentUser } from "@/app/lib/auth";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,6 +30,8 @@ import {
 import Link from "next/link";
 import { formatPrice } from "@/app/lib/utils";
 import { unstable_noStore as noStore } from "next/cache";
+import { redirect } from "next/navigation";
+import { UserRole } from "@prisma/client";
 // Import SalesChart component
 import SalesChart from "./components/SalesChart";
 
@@ -237,8 +239,164 @@ async function getData(vendorId: string) {
 }
 
 export default async function VendorDashboard() {
-  const { user, vendor } = await requireVendor();
-  const data = await getData(vendor.id);
+  noStore();
+  
+  const user = await getCurrentUser(true);
+  
+  if (!user) {
+    return redirect("/auth-error");
+  }
+
+  // Check if user has vendor role and vendor profile
+  if (user.role !== UserRole.VENDOR || !user.vendors || user.vendors.length === 0) {
+    return redirect("/vendors/register");
+  }
+
+  const vendor = user.vendors[0];
+  
+  // Check if vendor is approved for full dashboard functionality
+  const isApproved = vendor.approved;
+  
+  // Get dashboard data only if approved
+  const data = isApproved ? await getData(vendor.id) : null;
+
+  // If vendor is not approved, show pending state in dashboard
+  if (!isApproved || !data) {
+    return (
+      <div className="space-y-8">
+        {/* Pending Approval Header */}
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
+              <Clock className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-orange-900">Welcome, {vendor.name}!</h1>
+              <p className="text-orange-700">Your vendor application is currently under review.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Pending Status Cards */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="border-orange-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-orange-800">Application Status</CardTitle>
+              <Clock className="h-4 w-4 text-orange-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-orange-900">Pending</div>
+              <p className="text-xs text-orange-600">Under admin review</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-gray-200 opacity-60">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-500">Products</CardTitle>
+              <Package className="h-4 w-4 text-gray-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-400">0</div>
+              <p className="text-xs text-gray-400">Available after approval</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-gray-200 opacity-60">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-500">Orders</CardTitle>
+              <ShoppingCart className="h-4 w-4 text-gray-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-400">0</div>
+              <p className="text-xs text-gray-400">Available after approval</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-gray-200 opacity-60">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-500">Revenue</CardTitle>
+              <DollarSign className="h-4 w-4 text-gray-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-400">$0</div>
+              <p className="text-xs text-gray-400">Available after approval</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* What's Next Section */}
+        <Card className="border-blue-200">
+          <CardHeader>
+            <CardTitle className="text-blue-900">What happens next?</CardTitle>
+            <CardDescription className="text-blue-700">
+              Here's what to expect during the approval process
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-3">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              <span className="text-sm text-gray-800">Application submitted successfully</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Clock className="h-5 w-5 text-orange-600" />
+              <span className="text-sm text-gray-800">Admin review in progress (1-2 business days)</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <AlertCircle className="h-5 w-5 text-gray-400" />
+              <span className="text-sm text-gray-600">Email notification upon approval</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Package className="h-5 w-5 text-gray-400" />
+              <span className="text-sm text-gray-600">Full dashboard access after approval</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Vendor Profile Preview */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Your Vendor Profile</CardTitle>
+            <CardDescription>
+              Review your submitted information
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="text-sm font-medium text-gray-700">Business Name</label>
+              <p className="text-gray-900">{vendor.name}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">Email</label>
+              <p className="text-gray-900">{vendor.email}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">Phone</label>
+              <p className="text-gray-900">{vendor.phone}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">Business Type</label>
+              <p className="text-gray-900">{vendor.businessType || 'Not specified'}</p>
+            </div>
+            <div className="md:col-span-2">
+              <label className="text-sm font-medium text-gray-700">Address</label>
+              <p className="text-gray-900">{vendor.address}</p>
+            </div>
+            {vendor.bio && (
+              <div className="md:col-span-2">
+                <label className="text-sm font-medium text-gray-700">Bio</label>
+                <p className="text-gray-900">{vendor.bio}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // TypeScript guard to ensure data is not null for approved vendors
+  if (!data) {
+    throw new Error("Data should be available for approved vendors");
+  }
 
   return (
     <div className="space-y-8">

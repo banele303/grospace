@@ -184,14 +184,15 @@ export function VendorDashboardSidebar() {
   return (
     <div className="flex h-full w-64 flex-col border-r bg-background overflow-y-auto">
       {/* Logo */}
-      <div className="flex h-16 items-center border-b px-6">
+      <div className="flex h-34 items-center border-b px-6">
         <Link href="/vendor/dashboard" className="flex items-center">
           <Image
             src="/grospace-log.png"
             alt="GroSpace Logo"
-            width={150}
-            height={40}
-            className="object-contain"
+            width={220}
+            height={100}
+            className="object-contain h-34 w-auto"
+            priority
           />
         </Link>
       </div>

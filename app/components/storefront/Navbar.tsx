@@ -35,6 +35,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useCart } from "@/app/context/CartContext";
 import { useAuthState } from "@/app/hooks/useAuthState";
+import { useVendorStatus } from "@/app/hooks/useVendorStatus";
+
+// User interface for type safety
+interface AuthUser {
+  email: string | null;
+  given_name: string | null;
+  picture: string | null;
+}
 
 function AuthButtons() {
   return (
@@ -46,7 +54,7 @@ function AuthButtons() {
         <LoginLink>Sign in</LoginLink>
       </Button>
       <Button variant="outline" asChild>
-        <RegisterLink postLoginRedirectURL="/">Sign up</RegisterLink>
+        <RegisterLink>Sign up</RegisterLink>
       </Button>
     </div>
   );
@@ -69,7 +77,7 @@ function AuthDropdown() {
             <LoginLink>Sign in</LoginLink>
           </Button>
           <Button variant="outline" asChild className="w-full">
-            <RegisterLink postLoginRedirectURL="/">Sign up</RegisterLink>
+            <RegisterLink>Sign up</RegisterLink>
           </Button>
         </div>
       </DropdownMenuContent>
@@ -78,11 +86,14 @@ function AuthDropdown() {
 }
 
 export function Navbar() {
-  const { user, isLoading } = useAuthState();
+  const authState = useAuthState();
+  const { user: rawUser, isLoading } = authState;
+  const user = rawUser as AuthUser | null;
   const { itemCount } = useCart();
+  const { isVendor, loading: vendorLoading } = useVendorStatus();
 
   // Debug logging
-  console.log('Navbar - User state:', { user, isLoading });
+  console.log('Navbar - User state:', { user, isLoading, isAuthenticated: !!user });
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white">
@@ -202,26 +213,28 @@ export function Navbar() {
           <div className="w-64">
             <SearchBar />
           </div>
-          <Link 
-            href="/vendors/register" 
-            className="relative inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-full shadow-lg hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 ease-in-out hover:shadow-xl group overflow-hidden"
-          >
-            <span className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity duration-200"></span>
-            <span className="relative flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Become a Vendor
-            </span>
-          </Link>
+          {!isVendor && !vendorLoading && (
+            <Link 
+              href="/vendors/register" 
+              className="relative inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-full shadow-lg hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 ease-in-out hover:shadow-xl group overflow-hidden"
+            >
+              <span className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity duration-200"></span>
+              <span className="relative flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Become a Vendor
+              </span>
+            </Link>
+          )}
           {isLoading ? (
             <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse"></div>
           ) : user ? (
             <UserDropdown
-              email={user.email as string}
-              name={user.given_name as string}
+              email={user?.email ?? ""}
+              name={user?.given_name ?? ""}
               userImage={
-                user.picture ?? `https://avatar.vercel.sh/${user.given_name}`
+                user?.picture ?? `https://avatar.vercel.sh/${user?.given_name ?? "user"}`
               }
             />
           ) : (
@@ -325,26 +338,28 @@ export function Navbar() {
                       Marketplace
                     </Link>
                   </div>
-                  <Link 
-                    href="/vendors/register" 
-                    className="relative inline-flex items-center justify-center w-full px-6 py-3 text-base font-semibold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl shadow-lg hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 ease-in-out hover:shadow-xl group overflow-hidden mb-6"
-                  >
-                    <span className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-200"></span>
-                    <span className="relative flex items-center gap-2">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
-                      Become a Vendor
-                    </span>
-                  </Link>
+                  {!isVendor && !vendorLoading && (
+                    <Link 
+                      href="/vendors/register" 
+                      className="relative inline-flex items-center justify-center w-full px-6 py-3 text-base font-semibold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl shadow-lg hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 ease-in-out hover:shadow-xl group overflow-hidden mb-6"
+                    >
+                      <span className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-200"></span>
+                      <span className="relative flex items-center gap-2">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Become a Vendor
+                      </span>
+                    </Link>
+                  )}
                   {isLoading ? (
                     <div className="w-full h-12 bg-gray-200 animate-pulse rounded-lg"></div>
                   ) : user ? (
                      <UserDropdown
-                        email={user.email as string}
-                        name={user.given_name as string}
+                        email={user?.email ?? ""}
+                        name={user?.given_name ?? ""}
                         userImage={
-                          user.picture ?? `https://avatar.vercel.sh/${user.given_name}`
+                          user?.picture ?? `https://avatar.vercel.sh/${user?.given_name ?? "user"}`
                         }
                       />
                   ) : (

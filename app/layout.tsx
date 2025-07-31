@@ -33,21 +33,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} min-h-screen flex flex-col overflow-x-hidden`}>
+      <body className={`${inter.className} min-h-screen flex flex-col overflow-x-hidden bg-white dark:bg-background`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <NextSSRPlugin
-            routerConfig={extractRouterConfig(ourFileRouter)}
+        routerConfig={extractRouterConfig(ourFileRouter)}
           />
           <CartProvider>
-            <ClientKindeProvider>
-              {children}
-            </ClientKindeProvider>
-            <Toaster position="top-center" richColors closeButton />
+        <ClientKindeProvider>
+          {children}
+        </ClientKindeProvider>
+        <Toaster position="top-center" richColors closeButton />
           </CartProvider>
         </ThemeProvider>
       </body>

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { 
@@ -10,8 +12,10 @@ import {
   Linkedin,
   ArrowRight
 } from "lucide-react";
+import { useVendorStatus } from "@/app/hooks/useVendorStatus";
 
 export function Footer() {
+  const { isVendor, loading: vendorLoading } = useVendorStatus();
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-16">
@@ -80,12 +84,14 @@ export function Footer() {
                   Products
                 </Link>
               </li>
-              <li>
-                <Link href="/vendors/register" className="text-gray-300 hover:text-emerald-400 transition-colors duration-200 flex items-center">
-                  <ArrowRight className="w-4 h-4 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  Become a Vendor
-                </Link>
-              </li>
+              {!isVendor && !vendorLoading && (
+                <li>
+                  <Link href="/vendors/register" className="text-gray-300 hover:text-emerald-400 transition-colors duration-200 flex items-center">
+                    <ArrowRight className="w-4 h-4 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    Become a Vendor
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 

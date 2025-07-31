@@ -32,7 +32,7 @@ export function VendorLayoutClient({
               <div className="sticky top-0 z-10">
                 <VendorHeaderClient vendorName={vendorName} userEmail={userEmail} />
               </div>
-              <main className="flex-1 py-6 px-6">
+              <main className="flex-1 py-8 px-8">
                 {children}
               </main>
             </div>

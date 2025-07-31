@@ -11,9 +11,20 @@ export async function GET(req: NextRequest) {
   const color = searchParams.get("color");
   const minPrice = searchParams.get("minPrice");
   const maxPrice = searchParams.get("maxPrice");
-  const page = parseInt(searchParams.get("page") || "1");
-  const limit = parseInt(searchParams.get("limit") || "12");
-  const skip = (page - 1) * limit;
+  
+  // Validate and sanitize pagination parameters
+  const page = Math.max(1, parseInt(searchParams.get("page") || "1") || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "12") || 12));
+  const skip = Math.max(0, (page - 1) * limit);
+
+  // Validate skip value to prevent invalid queries
+  if (skip < 0 || limit <= 0) {
+    return NextResponse.json({ 
+      error: "Invalid pagination parameters",
+      products: [],
+      pagination: { total: 0, page: 1, limit: 12, totalPages: 0 }
+    }, { status: 400 });
+  }
 
   const cacheKey = `products:${category || 'all'}:${brand || 'all'}:${material || 'all'}:${size || 'all'}:${color || 'all'}:${minPrice || '0'}:${maxPrice || 'all'}:${page}:${limit}`;
 
@@ -25,7 +36,7 @@ export async function GET(req: NextRequest) {
     // }
 
     const where: any = {
-      status: "published",
+      status: "published", // Use lowercase to match enum
       // Only show products from approved users and vendors
       user: {
         accountStatus: "APPROVED",

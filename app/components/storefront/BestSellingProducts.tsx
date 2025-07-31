@@ -9,7 +9,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatPrice } from "@/app/lib/utils";
 import { addItem } from "@/app/actions";
-import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import { useSafeAuth } from "@/app/hooks/useSafeAuth";
 import { toast } from "sonner";
 
 interface BestSellingProduct {
@@ -38,11 +38,14 @@ interface BestSellingProductsProps {
 }
 
 export function BestSellingProducts({ products }: BestSellingProductsProps) {
-  const { getUser } = useKindeBrowserClient();
   const [loading, setLoading] = useState<string | null>(null);
+  
+  // Use the safe auth hook
+  const { user, isMounted } = useSafeAuth();
 
   const handleAddToCart = async (productId: string, productName: string) => {
-    const user = getUser();
+    if (!isMounted) return;
+    
     if (!user) {
       toast.error("Please log in to add items to cart");
       return;

@@ -102,10 +102,10 @@ function ProductsPageContent() {
   };
 
   return (
-    <div className="flex">
+    <div className="flex bg-white min-h-screen">
       <FilterSidebar setFilter={setFilter} />
-      <main className="flex-1">
-        <div className="p-8">
+      <main className="flex-1 bg-white">
+        <div className="p-8 bg-white">
           <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 mb-10">
             All Products
           </h1>

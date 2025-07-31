@@ -45,7 +45,7 @@
     "date-time-picker": "^0.5.3",
     "dompurify": "^3.2.6",
     "embla-carousel-react": "^8.1.5",
-    "framer-motion": "^12.23.9",
+    "framer-motion": "^12.23.12",
     "install": "^0.13.0",
     "isomorphic-dompurify": "^2.26.0",
     "jodit-react": "^5.2.19",

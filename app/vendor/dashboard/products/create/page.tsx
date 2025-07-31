@@ -1,4 +1,4 @@
-import { requireVendor } from "@/app/lib/auth";
+import { getVendorStatus } from "@/app/lib/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,10 +11,15 @@ import {
   Upload,
   ArrowLeft,
   Save,
-  Eye
+  Eye,
+  AlertCircle,
+  Clock
 } from "lucide-react";
 import Link from "next/link";
 import { CreateProductForm } from "@/app/components/vendor/CreateProductForm";
+import { redirect } from "next/navigation";
+import { UserRole } from "@prisma/client";
+import { PendingApprovalCard } from "@/app/components/vendor/PendingApprovalCard";
 
 const categories = [
   "seeds",
@@ -35,7 +40,27 @@ const seasonality = [
 ];
 
 export default async function CreateProductPage() {
-  const { vendor } = await requireVendor();
+  const vendorStatus = await getVendorStatus();
+  
+  // If vendor is pending approval, show pending state
+  if (!vendorStatus.success && vendorStatus.isPending) {
+    return (
+      <PendingApprovalCard
+        title="Create Products - Approval Required"
+        description="Your vendor account is currently under review. Once approved, you'll be able to create and publish products in our marketplace."
+        feature="create products"
+        backUrl="/vendor/dashboard/products"
+        backLabel="Back to Products"
+      />
+    );
+  }
+
+  // If there's another error, handle it
+  if (!vendorStatus.success) {
+    return redirect("/auth-error");
+  }
+
+  const { user, vendor } = vendorStatus;
 
   return (
     <div className="space-y-8">

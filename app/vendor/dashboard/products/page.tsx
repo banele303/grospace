@@ -1,4 +1,4 @@
-import { requireVendor } from "@/app/lib/auth";
+import { getVendorStatus } from "@/app/lib/auth";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import SanitizedHtml from "@/app/components/sanitized-html";
@@ -23,6 +23,7 @@ import Image from "next/image";
 import ProductActions from "./components/product-actions";
 import { formatPrice } from "@/app/lib/utils";
 import { unstable_noStore as noStore } from "next/cache";
+import { PendingApprovalCard } from "@/app/components/vendor/PendingApprovalCard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,7 +65,27 @@ async function getVendorProducts(vendorId: string) {
 }
 
 export default async function VendorProductsPage() {
-  const { vendor } = await requireVendor();
+  const vendorStatus = await getVendorStatus();
+  
+  // If vendor is pending approval, show pending state
+  if (!vendorStatus.success && vendorStatus.isPending) {
+    return (
+      <PendingApprovalCard
+        title="Products Access Pending"
+        description="Your vendor account is currently under review. Once approved, you'll be able to create and manage your product catalog."
+        feature="manage your products"
+        backUrl="/vendor/dashboard"
+        backLabel="Back to Dashboard"
+      />
+    );
+  }
+
+  // If there's another error, handle it
+  if (!vendorStatus.success) {
+    throw new Error(vendorStatus.error || "Access denied");
+  }
+
+  const { vendor } = vendorStatus;
   const { products, stats } = await getVendorProducts(vendor.id);
 
   return (

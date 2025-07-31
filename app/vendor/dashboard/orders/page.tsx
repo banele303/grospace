@@ -1,4 +1,4 @@
-import { requireVendor } from "@/app/lib/auth";
+import { getVendorStatus } from "@/app/lib/auth";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { PendingApprovalCard } from "@/app/components/vendor/PendingApprovalCard";
 import {
   Table,
   TableBody,
@@ -105,7 +106,27 @@ function getStatusColor(status: string) {
 }
 
 export default async function VendorOrdersPage() {
-  const { vendor } = await requireVendor();
+  const vendorStatus = await getVendorStatus();
+  
+  // If vendor is pending approval, show pending state
+  if (!vendorStatus.success && vendorStatus.isPending) {
+    return (
+      <PendingApprovalCard
+        title="Orders Access Pending"
+        description="Your vendor account is currently under review. Once approved, you'll be able to view and manage your orders."
+        feature="manage orders"
+        backUrl="/vendor/dashboard"
+        backLabel="Back to Dashboard"
+      />
+    );
+  }
+
+  // If there's another error, handle it
+  if (!vendorStatus.success) {
+    throw new Error(vendorStatus.error || "Access denied");
+  }
+
+  const { vendor } = vendorStatus;
   const { orders, stats, totalRevenue } = await getVendorOrders(vendor.id);
 
   const pendingOrders = orders.filter(o => o.order.status === 'PENDING');

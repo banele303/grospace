@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuthRedirect } from "@/app/hooks/useAuthRedirect";
+import { useAuthState } from "@/app/hooks/useAuthState";
 import { UploadButton } from "@/app/lib/uploadthing";
 import { toast } from "sonner";
 import Image from 'next/image';
@@ -69,9 +69,8 @@ const specialtyOptions = [
 
 export default function VendorRegisterPage() {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading, authChecked } = useAuthRedirect({
-    redirectTo: '/api/auth/login?post_login_redirect_url=/vendors/register'
-  });
+  const { user, isLoading } = useAuthState();
+  const isAuthenticated = !!user;
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     name: "",
@@ -93,31 +92,36 @@ export default function VendorRegisterPage() {
   const [success, setSuccess] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  // Show loading while checking authentication
+  // Show loading while checking authentication - give more time
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center">
+      <div className="light min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-          <p className="text-green-700">Loading...</p>
+          <p className="text-green-700">Checking authentication...</p>
         </div>
       </div>
     );
   }
 
-  // If not authenticated after checking, show message instead of redirecting
+  // Only show auth required if we've checked and definitely not authenticated
   if (!isAuthenticated && !user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center">
+      <div className="light min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center">
         <div className="text-center space-y-4 max-w-md mx-auto p-6">
           <AlertCircle className="w-16 h-16 text-amber-500 mx-auto" />
           <h2 className="text-2xl font-bold text-gray-800">Authentication Required</h2>
           <p className="text-gray-600">You need to be signed in to register as a vendor.</p>
-          <Link href="/api/auth/login?post_login_redirect_url=/vendors/register">
-            <Button className="bg-green-600 hover:bg-green-700">
-              Sign In to Continue
+          <div className="space-y-2">
+            <Link href="/api/auth/login?post_login_redirect_url=/vendors/register">
+              <Button className="bg-green-600 hover:bg-green-700 w-full">
+                Sign In to Continue
+              </Button>
+            </Link>
+            <Button variant="outline" onClick={() => window.location.reload()} className="w-full">
+              Refresh Page
             </Button>
-          </Link>
+          </div>
         </div>
       </div>
     );
@@ -181,24 +185,43 @@ export default function VendorRegisterPage() {
     setSuccess(false);
     
     try {
+      console.log('Submitting vendor registration with data:', {
+        ...form,
+        logo: form.logo, // Keep the logo field name as expected by API
+        establishedYear: form.establishedYear ? parseInt(form.establishedYear) : null,
+        minimumOrder: form.minimumOrder ? parseInt(form.minimumOrder) : null,
+        deliveryRadius: form.deliveryRadius ? parseInt(form.deliveryRadius) : null,
+      });
+
       const res = await fetch("/api/vendors/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
-          storeImageUrl: form.logo, // Rename logo field to storeImageUrl for API compatibility
+          logo: form.logo, // Use logo field name as expected by API
           establishedYear: form.establishedYear ? parseInt(form.establishedYear) : null,
           minimumOrder: form.minimumOrder ? parseInt(form.minimumOrder) : null,
           deliveryRadius: form.deliveryRadius ? parseInt(form.deliveryRadius) : null,
         }),
       });
+      
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Registration failed");
+      console.log('Vendor registration response:', { status: res.status, data });
+      
+      if (!res.ok) {
+        console.error('Vendor registration failed:', data);
+        throw new Error(data.error || "Registration failed");
+      }
+      
+      console.log('Vendor registration successful!', data);
       setSuccess(true);
+      
+      // Redirect to vendor dashboard after successful registration
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/vendor/dashboard");
       }, 3000);
     } catch (err: any) {
+      console.error('Error during vendor registration:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -207,29 +230,29 @@ export default function VendorRegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md shadow-xl border-0">
-          <CardContent className="pt-6">
+      <div className="light min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-white border-gray-200 shadow-xl">
+          <CardContent className="pt-6 bg-white">
             <div className="text-center space-y-6">
               <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
                 <CheckCircle className="h-10 w-10 text-white" />
               </div>
               <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-green-900">Application Submitted!</h2>
-                <p className="text-green-600 leading-relaxed">
+                <h2 className="text-2xl font-bold text-gray-900">Application Submitted!</h2>
+                <p className="text-gray-700 leading-relaxed">
                   Thank you for applying to become a vendor on our agricultural marketplace. Your application is being reviewed by our team.
                 </p>
               </div>
               <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                <p className="text-sm text-green-700">
+                <p className="text-sm text-green-800">
                   <strong>What&apos;s next?</strong><br/>
                   You&apos;ll receive an email notification once your application is approved. This typically takes 1-2 business days.
                 </p>
               </div>
               <div className="pt-4 space-y-2">
                 <Button 
-                  onClick={() => router.push('/dashboard')} 
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  onClick={() => router.push('/vendor/dashboard')} 
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
                 >
                   Go to Dashboard
                 </Button>
@@ -248,7 +271,7 @@ export default function VendorRegisterPage() {
   const progressPercentage = (step / totalSteps) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 py-8 px-4">
+    <div className="light min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -296,11 +319,11 @@ export default function VendorRegisterPage() {
 
         <form onSubmit={handleSubmit}>
           {step === 1 && (
-            <Card>
+            <Card className="bg-white border-gray-200 shadow-lg">
               <CardHeader className="bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-t-lg">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-2xl font-bold flex items-center gap-2">
+                    <CardTitle className="text-2xl font-bold flex items-center gap-2 text-white">
                       <Building className="h-6 w-6" />
                       Business Information
                     </CardTitle>
@@ -327,13 +350,13 @@ export default function VendorRegisterPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-8">
+              <CardContent className="p-8 bg-white">
                 <div className="mb-6">
-                  <Label className="mb-2 font-medium text-green-800 flex items-center gap-2">
+                  <Label className="mb-2 font-medium text-gray-800 flex items-center gap-2">
                     <ImageIcon className="h-4 w-4" />
                     Store Cover Image *
                   </Label>
-                  <p className="text-sm text-green-600 mb-3">This will be displayed prominently on your store page</p>
+                  <p className="text-sm text-gray-600 mb-3">This will be displayed prominently on your store page</p>
                   
                   {isUploading ? (
                     <div className="w-full h-48 rounded-lg border-2 border-dashed border-green-200 bg-green-50 flex items-center justify-center">
@@ -395,11 +418,12 @@ export default function VendorRegisterPage() {
                       </div>
                     </div>
                   )}
+                  {fieldErrors.logo && <p className="text-red-600 text-sm mt-2">{fieldErrors.logo}</p>}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Business Name *</Label>
+                    <Label htmlFor="name" className="text-gray-800 font-medium">Business Name *</Label>
                     <Input
                       id="name"
                       name="name"
@@ -407,28 +431,31 @@ export default function VendorRegisterPage() {
                       value={form.name}
                       onChange={handleInputChange}
                       required
+                      className={`bg-white border-gray-300 text-gray-900 placeholder-gray-500 ${fieldErrors.name ? 'border-red-500' : ''}`}
                     />
+                    {fieldErrors.name && <p className="text-red-600 text-sm">{fieldErrors.name}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="businessType">Business Type *</Label>
+                    <Label htmlFor="businessType" className="text-gray-800 font-medium">Business Type *</Label>
                     <Select onValueChange={(value) => handleSelectChange('businessType', value)}>
-                      <SelectTrigger>
+                      <SelectTrigger className={`bg-white border-gray-300 text-gray-900 ${fieldErrors.businessType ? 'border-red-500' : ''}`}>
                         <SelectValue placeholder="Select business type" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white border-gray-300">
                         {businessTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
+                          <SelectItem key={type} value={type} className="text-gray-900 hover:bg-gray-100">
                             {type}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+                    {fieldErrors.businessType && <p className="text-red-600 text-sm">{fieldErrors.businessType}</p>}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="flex items-center gap-2">
+                    <Label htmlFor="email" className="flex items-center gap-2 text-gray-800 font-medium">
                       <Mail className="h-4 w-4" />
                       Email Address *
                     </Label>
@@ -440,10 +467,12 @@ export default function VendorRegisterPage() {
                       value={form.email}
                       onChange={handleInputChange}
                       required
+                      className={`bg-white border-gray-300 text-gray-900 placeholder-gray-500 ${fieldErrors.email ? 'border-red-500' : ''}`}
                     />
+                    {fieldErrors.email && <p className="text-red-600 text-sm">{fieldErrors.email}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="flex items-center gap-2">
+                    <Label htmlFor="phone" className="flex items-center gap-2 text-gray-800 font-medium">
                       <Phone className="h-4 w-4" />
                       Phone Number
                     </Label>
@@ -453,12 +482,13 @@ export default function VendorRegisterPage() {
                       placeholder="+1 (555) 123-4567"
                       value={form.phone}
                       onChange={handleInputChange}
+                      className="bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="address" className="flex items-center gap-2">
+                  <Label htmlFor="address" className="flex items-center gap-2 text-gray-800 font-medium">
                     <MapPin className="h-4 w-4" />
                     Business Address
                   </Label>
@@ -468,11 +498,12 @@ export default function VendorRegisterPage() {
                     placeholder="123 Farm Road, Green Valley, CA 12345"
                     value={form.address}
                     onChange={handleInputChange}
+                    className="bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="establishedYear" className="flex items-center gap-2">
+                  <Label htmlFor="establishedYear" className="flex items-center gap-2 text-gray-800 font-medium">
                     <Calendar className="h-4 w-4" />
                     Established Year
                   </Label>
@@ -485,11 +516,12 @@ export default function VendorRegisterPage() {
                     max={new Date().getFullYear()}
                     value={form.establishedYear}
                     onChange={handleInputChange}
+                    className="bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="bio">About Your Business</Label>
+                  <Label htmlFor="bio" className="text-gray-800 font-medium">About Your Business</Label>
                   <Textarea
                     id="bio"
                     name="bio"
@@ -497,6 +529,7 @@ export default function VendorRegisterPage() {
                     value={form.bio}
                     onChange={handleInputChange}
                     rows={4}
+                    className="bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                   />
                 </div>
               </CardContent>
@@ -504,11 +537,11 @@ export default function VendorRegisterPage() {
           )}
 
           {step === 2 && (
-            <Card>
+            <Card className="bg-white border-gray-200 shadow-lg">
               <CardHeader className="bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-t-lg">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-2xl font-bold flex items-center gap-2">
+                    <CardTitle className="text-2xl font-bold flex items-center gap-2 text-white">
                       <Leaf className="h-6 w-6" />
                       Products & Certifications
                     </CardTitle>
@@ -535,9 +568,9 @@ export default function VendorRegisterPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-8">
+              <CardContent className="p-8 bg-white">
                 <div className="space-y-2">
-                  <Label>Certifications</Label>
+                  <Label className="text-gray-800 font-medium">Certifications</Label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {certificationOptions.map((option) => (
                       <div key={option} className="flex items-center space-x-2">
@@ -545,8 +578,9 @@ export default function VendorRegisterPage() {
                           id={`cert-${option}`}
                           checked={form.certifications.includes(option)}
                           onCheckedChange={() => handleArrayToggle('certifications', option)}
+                          className="border-gray-300"
                         />
-                        <Label htmlFor={`cert-${option}`} className="text-sm">
+                        <Label htmlFor={`cert-${option}`} className="text-sm text-gray-800">
                           {option}
                         </Label>
                       </div>
@@ -555,7 +589,7 @@ export default function VendorRegisterPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Specialties</Label>
+                  <Label className="text-gray-800 font-medium">Specialties</Label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {specialtyOptions.map((option) => (
                       <div key={option} className="flex items-center space-x-2">
@@ -563,24 +597,26 @@ export default function VendorRegisterPage() {
                           id={`spec-${option}`}
                           checked={form.specialties.includes(option)}
                           onCheckedChange={() => handleArrayToggle('specialties', option)}
+                          className="border-gray-300"
                         />
-                        <Label htmlFor={`spec-${option}`} className="text-sm">
+                        <Label htmlFor={`spec-${option}`} className="text-sm text-gray-800">
                           {option}
                         </Label>
                       </div>
                     ))}
                   </div>
+                  {fieldErrors.specialties && <p className="text-red-600 text-sm">{fieldErrors.specialties}</p>}
                 </div>
               </CardContent>
             </Card>
           )}
 
           {step === 3 && (
-            <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+            <Card className="bg-white border-gray-200 shadow-lg">
               <CardHeader className="bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-t-lg">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-2xl font-bold flex items-center gap-2">
+                    <CardTitle className="text-2xl font-bold flex items-center gap-2 text-white">
                       <Award className="h-6 w-6" />
                       Final Details
                     </CardTitle>
@@ -607,10 +643,10 @@ export default function VendorRegisterPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-8">
+              <CardContent className="p-8 bg-white">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="minimumOrder">Minimum Order Amount ($)</Label>
+                    <Label htmlFor="minimumOrder" className="text-gray-800 font-medium">Minimum Order Amount ($)</Label>
                     <Input
                       id="minimumOrder"
                       name="minimumOrder"
@@ -618,11 +654,12 @@ export default function VendorRegisterPage() {
                       placeholder="100"
                       value={form.minimumOrder}
                       onChange={handleInputChange}
+                      className="bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="deliveryRadius">Delivery Radius (miles)</Label>
+                    <Label htmlFor="deliveryRadius" className="text-gray-800 font-medium">Delivery Radius (miles)</Label>
                     <Input
                       id="deliveryRadius"
                       name="deliveryRadius"
@@ -630,20 +667,21 @@ export default function VendorRegisterPage() {
                       placeholder="50"
                       value={form.deliveryRadius}
                       onChange={handleInputChange}
+                      className="bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                     />
                   </div>
                 </div>
 
-                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                  <h4 className="font-medium text-green-800 mb-2">Review Your Information</h4>
-                  <div className="space-y-2 text-sm text-green-700">
-                    <p><strong>Business:</strong> {form.name} ({form.businessType})</p>
-                    <p><strong>Contact:</strong> {form.email}</p>
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <h4 className="font-medium text-gray-800 mb-2">Review Your Information</h4>
+                  <div className="space-y-2 text-sm text-gray-700">
+                    <p><strong className="text-gray-800">Business:</strong> {form.name} ({form.businessType})</p>
+                    <p><strong className="text-gray-800">Contact:</strong> {form.email}</p>
                     {form.certifications.length > 0 && (
-                      <p><strong>Certifications:</strong> {form.certifications.join(', ')}</p>
+                      <p><strong className="text-gray-800">Certifications:</strong> {form.certifications.join(', ')}</p>
                     )}
                     {form.specialties.length > 0 && (
-                      <p><strong>Specialties:</strong> {form.specialties.join(', ')}</p>
+                      <p><strong className="text-gray-800">Specialties:</strong> {form.specialties.join(', ')}</p>
                     )}
                   </div>
                 </div>
@@ -658,8 +696,9 @@ export default function VendorRegisterPage() {
                 type="button" 
                 onClick={prevStep} 
                 variant="outline"
-                className="border-green-300 text-green-700 hover:bg-green-50"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 bg-white"
               >
+                <ArrowLeft className="h-4 w-4 mr-2" />
                 Previous
               </Button>
             ) : (
@@ -674,6 +713,7 @@ export default function VendorRegisterPage() {
                 disabled={step === 1 && (!form.name || !form.email || !form.businessType || !form.logo)}
               >
                 Next
+                <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             ) : (
               <Button 
@@ -682,6 +722,7 @@ export default function VendorRegisterPage() {
                 disabled={loading}
               >
                 {loading ? "Registering..." : "Complete Registration"}
+                <CheckCircle className="h-4 w-4 ml-2" />
               </Button>
             )}
           </div>
@@ -698,9 +739,9 @@ export default function VendorRegisterPage() {
 
         {/* Already have an account */}
         <div className="text-center mt-8">
-          <p className="text-green-700">
+          <p className="text-gray-700">
             Already have an account?{" "}
-            <Link href="/api/auth/login" className="text-green-600 hover:text-green-700 font-medium">
+            <Link href="/api/auth/login" className="text-green-600 hover:text-green-700 font-medium underline">
               Sign in here
             </Link>
           </p>

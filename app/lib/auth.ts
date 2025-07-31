@@ -82,6 +82,52 @@ export async function requireRole(role: UserRole) {
   return user;
 }
 
+export async function getVendorStatus() {
+  const user = await getCurrentUser(true);
+  if (!user) {
+    return { success: false, error: "Authentication required", user: null, vendor: null };
+  }
+  
+  if (user.role !== UserRole.VENDOR || !user.vendors || user.vendors.length === 0) {
+    return { success: false, error: "Vendor access required", user, vendor: null };
+  }
+
+  // Check user account status
+  if (!user.isActive) {
+    return { success: false, error: "Your account is inactive. Please contact support.", user, vendor: null };
+  }
+
+  if (user.accountStatus === UserStatus.PENDING) {
+    return { success: false, error: "Your account is pending approval. Please wait for admin approval.", user, vendor: null };
+  }
+
+  if (user.accountStatus === UserStatus.BLOCKED) {
+    const reason = user.blockedReason ? ` Reason: ${user.blockedReason}` : '';
+    return { success: false, error: `Your account has been blocked.${reason}`, user, vendor: null };
+  }
+
+  if (user.accountStatus === UserStatus.SUSPENDED) {
+    return { success: false, error: "Your account is temporarily suspended. Please contact support.", user, vendor: null };
+  }
+
+  // Check vendor status
+  const vendor = user.vendors[0];
+  if (vendor.vendorStatus === VendorStatus.PENDING || !vendor.approved) {
+    return { success: false, error: "pending_approval", user, vendor, isPending: true };
+  }
+
+  if (vendor.vendorStatus === VendorStatus.BLOCKED) {
+    const reason = vendor.blockedReason ? ` Reason: ${vendor.blockedReason}` : '';
+    return { success: false, error: `Your vendor account has been blocked.${reason}`, user, vendor };
+  }
+
+  if (vendor.vendorStatus === VendorStatus.SUSPENDED) {
+    return { success: false, error: "Your vendor account is temporarily suspended. Please contact support.", user, vendor };
+  }
+  
+  return { success: true, error: null, user, vendor, isPending: false };
+}
+
 export async function requireVendor() {
   const user = await getCurrentUser(true);
   if (!user) {

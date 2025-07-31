@@ -65,14 +65,14 @@ export function SearchBar() {
         <div className="relative">
           <Input
             type="text"
-            placeholder="Search for products, brands, and more..."
+            placeholder="Search for products sqwizoor"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsFocused(true)}
-            className="w-full rounded-full px-14 py-4 text-lg bg-gray-50 border-2 border-gray-200 focus:border-primary focus:bg-white text-gray-900 placeholder:text-gray-500 transition-all duration-200"
+            className="w-full rounded-full px-10 py-2.5 text-sm bg-gray-50 border-2 border-gray-200 focus:border-primary focus:bg-white text-gray-900 placeholder:text-gray-500 transition-all duration-200"
           />
-          <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-            <SearchIcon className="h-6 w-6 text-gray-500" />
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <SearchIcon className="h-4 w-4 text-gray-500" />
           </div>
         </div>
       </form>
@@ -83,17 +83,17 @@ export function SearchBar() {
               <li key={product.id}>
                 <Link
                   href={`/product/${product.id}`}
-                  className="flex items-center p-4 hover:bg-gray-50 transition-colors duration-150 first:rounded-t-xl last:rounded-b-xl"
+                  className="flex items-center p-3 hover:bg-gray-50 transition-colors duration-150 first:rounded-t-xl last:rounded-b-xl"
                   onClick={() => setIsFocused(false)}
                 >
                   <Image
                     src={product.images[0]}
                     alt={product.name}
-                    width={48}
-                    height={48}
+                    width={40}
+                    height={40}
                     className="object-cover rounded-lg"
                   />
-                  <span className="ml-4 text-gray-900 font-medium text-lg">{product.name}</span>
+                  <span className="ml-3 text-gray-900 font-medium text-sm">{product.name}</span>
                 </Link>
               </li>
             ))}
