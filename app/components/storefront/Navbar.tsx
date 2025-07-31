@@ -145,56 +145,63 @@ export function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link 
                     href="/verticals/grobiogas" 
-                    className="w-full px-3 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer"
+                    className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
                   >
+                    <span className="text-emerald-500 mr-2">🌿</span>
                     GroBiogas
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link 
                     href="/verticals/grochick" 
-                    className="w-full px-3 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer"
+                    className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
                   >
+                    <span className="text-emerald-500 mr-2">🐣</span>
                     GroChick
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link 
                     href="/verticals/grocommodities" 
-                    className="w-full px-3 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer"
+                    className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
                   >
+                    <span className="text-emerald-500 mr-2">📦</span>
                     GroCommodities
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link 
                     href="/verticals/groconsulting" 
-                    className="w-full px-3 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer"
+                    className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
                   >
+                    <span className="text-emerald-500 mr-2">💡</span>
                     GroConsulting
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link 
                     href="/verticals/grodriver" 
-                    className="w-full px-3 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer"
+                    className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
                   >
+                    <span className="text-emerald-500 mr-2">🚚</span>
                     GroDriver
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link 
                     href="/verticals/grofeeds" 
-                    className="w-full px-3 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer"
+                    className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
                   >
+                    <span className="text-emerald-500 mr-2">🌾</span>
                     GroFeeds
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link 
                     href="/verticals/grofresh" 
-                    className="w-full px-3 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer"
+                    className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
                   >
+                    <span className="text-emerald-500 mr-2">🥬</span>
                     GroFresh
                   </Link>
                 </DropdownMenuItem>
@@ -247,6 +254,27 @@ export function Navbar() {
             <CartIcon />
           </div>
 
+          {/* User dropdown for mobile - show next to hamburger menu */}
+          <div className="lg:hidden">
+            {isLoading ? (
+              <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
+            ) : user ? (
+              <div className="scale-90">
+                <UserDropdown
+                  email={user?.email ?? ""}
+                  name={user?.given_name ?? ""}
+                  userImage={
+                    user?.picture ?? `https://avatar.vercel.sh/${user?.given_name ?? "user"}`
+                  }
+                />
+              </div>
+            ) : (
+              <div className="scale-90">
+                <AuthDropdown />
+              </div>
+            )}
+          </div>
+
           <div className="lg:hidden">
             <Sheet>
               <SheetTrigger asChild>
@@ -284,53 +312,85 @@ export function Navbar() {
                     >
                       Vendors
                     </Link>
-                    <div className="space-y-2">
-                      <p className="text-lg font-medium text-gray-700">Verticals</p>
-                      <div className="pl-4 space-y-2">
-                        <Link 
-                          href="/verticals/grobiogas" 
-                          className="block text-base text-gray-600 hover:text-primary transition-colors duration-200"
-                        >
-                          GroBiogas
-                        </Link>
-                        <Link 
-                          href="/verticals/grochick" 
-                          className="block text-base text-gray-600 hover:text-primary transition-colors duration-200"
-                        >
-                          GroChick
-                        </Link>
-                        <Link 
-                          href="/verticals/grocommodities" 
-                          className="block text-base text-gray-600 hover:text-primary transition-colors duration-200"
-                        >
-                          GroCommodities
-                        </Link>
-                        <Link 
-                          href="/verticals/groconsulting" 
-                          className="block text-base text-gray-600 hover:text-primary transition-colors duration-200"
-                        >
-                          GroConsulting
-                        </Link>
-                        <Link 
-                          href="/verticals/grodriver" 
-                          className="block text-base text-gray-600 hover:text-primary transition-colors duration-200"
-                        >
-                          GroDriver
-                        </Link>
-                        <Link 
-                          href="/verticals/grofeeds" 
-                          className="block text-base text-gray-600 hover:text-primary transition-colors duration-200"
-                        >
-                          GroFeeds
-                        </Link>
-                        <Link 
-                          href="/verticals/grofresh" 
-                          className="block text-base text-gray-600 hover:text-primary transition-colors duration-200"
-                        >
-                          GroFresh
-                        </Link>
-                      </div>
-                    </div>
+                    
+                    {/* Verticals as dropdown in mobile */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="flex items-center justify-between w-full text-lg font-medium text-gray-700 hover:text-primary transition-colors duration-200 py-2 border-none bg-transparent">
+                        Verticals
+                        <ChevronDown className="w-4 h-4" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent 
+                        className="bg-white border border-gray-200 shadow-lg rounded-xl p-2 min-w-[220px] max-h-[300px] overflow-y-auto" 
+                        align="start"
+                        side="right"
+                        sideOffset={10}
+                      >
+                        <DropdownMenuItem asChild>
+                          <Link 
+                            href="/verticals/grobiogas" 
+                            className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
+                          >
+                            <span className="text-emerald-500 mr-2">🌿</span>
+                            GroBiogas
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link 
+                            href="/verticals/grochick" 
+                            className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
+                          >
+                            <span className="text-emerald-500 mr-2">🐣</span>
+                            GroChick
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link 
+                            href="/verticals/grocommodities" 
+                            className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
+                          >
+                            <span className="text-emerald-500 mr-2">📦</span>
+                            GroCommodities
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link 
+                            href="/verticals/groconsulting" 
+                            className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
+                          >
+                            <span className="text-emerald-500 mr-2">💡</span>
+                            GroConsulting
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link 
+                            href="/verticals/grodriver" 
+                            className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
+                          >
+                            <span className="text-emerald-500 mr-2">🚚</span>
+                            GroDriver
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link 
+                            href="/verticals/grofeeds" 
+                            className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
+                          >
+                            <span className="text-emerald-500 mr-2">🌾</span>
+                            GroFeeds
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link 
+                            href="/verticals/grofresh" 
+                            className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
+                          >
+                            <span className="text-emerald-500 mr-2">🥬</span>
+                            GroFresh
+                          </Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    
                     <Link 
                       href="/products" 
                       className="block text-lg font-medium text-gray-700 hover:text-primary transition-colors duration-200"
@@ -351,19 +411,6 @@ export function Navbar() {
                         Become a Vendor
                       </span>
                     </Link>
-                  )}
-                  {isLoading ? (
-                    <div className="w-full h-12 bg-gray-200 animate-pulse rounded-lg"></div>
-                  ) : user ? (
-                     <UserDropdown
-                        email={user?.email ?? ""}
-                        name={user?.given_name ?? ""}
-                        userImage={
-                          user?.picture ?? `https://avatar.vercel.sh/${user?.given_name ?? "user"}`
-                        }
-                      />
-                  ) : (
-                    <AuthButtons />
                   )}
                 </div>
                 <div className="mt-4 lg:hidden">

@@ -32,7 +32,7 @@ export function useSafeAuth(): SafeAuthState {
     }
   }, [isMounted, kindeState?.isLoading, kindeState?.user, retryCount]);
 
-  // Log state for debugging
+  // Log state for debugging (only log when there are meaningful changes)
   useEffect(() => {
     if (isMounted) {
       console.log("useSafeAuth state:", {
@@ -42,7 +42,7 @@ export function useSafeAuth(): SafeAuthState {
         retryCount
       });
     }
-  }, [isMounted, kindeState?.isLoading, kindeState?.isAuthenticated, kindeState?.user, retryCount, kindeState]);
+  }, [isMounted, kindeState?.isLoading, kindeState?.isAuthenticated, kindeState?.user?.id, retryCount]);
 
   // Return safe state until we're on the client side
   if (!isMounted) {

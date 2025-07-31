@@ -25,6 +25,7 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useAdminStatus } from "@/app/hooks/useAdminStatus";
 
 interface iAppProps {
   email: string;
@@ -42,7 +43,7 @@ interface UserData {
 export function UserDropdown({ email, name, userImage }: iAppProps) {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAdminUser, setIsAdminUser] = useState(false);
+  const { isAdmin: isAdminUser } = useAdminStatus();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -63,19 +64,6 @@ export function UserDropdown({ email, name, userImage }: iAppProps) {
           console.error('Failed to fetch user data. Status:', response.status);
           const errorData = await response.text();
           console.error('Error response:', errorData);
-        }
-
-        // Also check admin status separately
-        console.log('Checking admin status for email:', email);
-        try {
-          const adminResponse = await fetch('/api/debug/admin');
-          if (adminResponse.ok) {
-            const adminData = await adminResponse.json();
-            console.log('Admin status check result:', adminData);
-            setIsAdminUser(adminData.adminStatus || false);
-          }
-        } catch (adminError) {
-          console.error('Error checking admin status:', adminError);
         }
       } catch (error) {
         console.error('Failed to fetch user data:', error);
