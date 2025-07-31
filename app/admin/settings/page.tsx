@@ -26,14 +26,12 @@ import {
   Instagram,
   Linkedin
 } from "lucide-react";
-import { AdminGuard } from "@/app/components/admin/AdminGuard";
 import { unstable_noStore as noStore } from "next/cache";
 
 export default async function AdminSettingsPage() {
   noStore();
 
   return (
-    <AdminGuard>
       <div className="p-6 space-y-8">
         {/* Header Section */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-600 via-slate-700 to-slate-800 dark:from-slate-800 dark:via-slate-900 dark:to-black p-8 md:p-12 text-white shadow-2xl">
@@ -446,6 +444,5 @@ export default async function AdminSettingsPage() {
           </Button>
         </div>
       </div>
-    </AdminGuard>
   );
 }

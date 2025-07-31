@@ -36,7 +36,6 @@ import {
   XCircle
 } from "lucide-react";
 import { getDetailedAnalytics, getAdminStats } from "@/app/lib/admin-actions";
-import { AdminGuard } from "@/app/components/admin/AdminGuard";
 import { unstable_noStore as noStore } from "next/cache";
 import { formatPrice } from "@/app/lib/utils";
 import { cn } from "@/lib/utils";
@@ -119,7 +118,7 @@ export default async function AdminAnalyticsPage() {
   const vendorApprovalRate = basicStats.totalVendors > 0 ? ((basicStats.activeVendors / basicStats.totalVendors) * 100) : 0;
 
   return (
-    <AdminGuard>
+    
       <div className="p-6 space-y-8">
         {/* Header Section - Enhanced with better dark mode */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-800 dark:via-purple-800 dark:to-pink-800 p-8 md:p-12 text-white shadow-2xl">
@@ -706,6 +705,6 @@ export default async function AdminAnalyticsPage() {
           </Card>
         </div>
       </div>
-    </AdminGuard>
+    
   );
 }

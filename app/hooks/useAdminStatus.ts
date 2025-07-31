@@ -2,15 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
+import { ADMIN_EMAIL } from '@/app/lib/admin-config';
 
 interface AdminStatusState {
   isAdmin: boolean;
   isLoading: boolean;
   error: string | null;
 }
-
-// Simple admin check - directly compare email
-const ADMIN_EMAIL = "alexsouthflow3@gmail.com";
 
 export function useAdminStatus(): AdminStatusState {
   const [state, setState] = useState<AdminStatusState>({

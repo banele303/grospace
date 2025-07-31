@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import { ADMIN_EMAIL } from "@/app/lib/admin-config";
 
 export function AdminHeader() {
   const [mounted, setMounted] = useState(false);
@@ -43,9 +44,22 @@ export function AdminHeader() {
       .slice(0, 2);
   };
 
-  const userName = user ? `${user.given_name || ''} ${user.family_name || ''}`.trim() || 'Admin User' : 'Admin User';
-  const userEmail = user?.email || 'admin@example.com';
+  // Get actual user info and use meaningful fallbacks only if needed
+  const firstName = user?.given_name || '';
+  const lastName = user?.family_name || '';
+  const userName = `${firstName} ${lastName}`.trim();
+  const userEmail = user?.email || '';
   const userAvatar = user?.picture || '';
+  const isAdmin = userEmail === ADMIN_EMAIL;
+  
+  // Log for debugging
+  console.log("AdminHeader: User info", { 
+    userName, 
+    userEmail, 
+    adminEmail: ADMIN_EMAIL,
+    isAdmin,
+    user 
+  });
 
   return (
     <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-slate-200/50 dark:border-slate-700/50 h-16 flex items-center justify-end px-6 gap-4 sticky top-0 z-40">
@@ -60,17 +74,17 @@ export function AdminHeader() {
             className="h-10 gap-3 px-3 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-300 hover:scale-105"
           >
             <Avatar className="h-8 w-8">
-              <AvatarImage src={userAvatar} alt={userName} />
+              <AvatarImage src={userAvatar} alt={userName || 'User'} />
               <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-600 text-white text-sm font-semibold">
-                {getInitials(userName)}
+                {userName ? getInitials(userName) : 'AD'}
               </AvatarFallback>
             </Avatar>
             <div className="hidden md:flex flex-col items-start">
               <span className="text-sm font-medium text-slate-900 dark:text-white">
-                {userName}
+                {userName || 'Loading...'}
               </span>
               <span className="text-xs text-slate-600 dark:text-slate-400">
-                {userEmail}
+                {userEmail || (isLoading ? 'Loading...' : 'No email available')}
               </span>
             </div>
           </Button>

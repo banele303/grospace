@@ -22,7 +22,6 @@ import {
   DollarSign
 } from "lucide-react";
 import { getAllVendors } from "@/app/lib/admin-actions";
-import { AdminGuard } from "@/app/components/admin/AdminGuard";
 import { VendorActions } from "../../components/admin/VendorActions";
 import { unstable_noStore as noStore } from "next/cache";
 import { formatDistanceToNow } from "date-fns";
@@ -54,7 +53,6 @@ export default async function AdminVendorsPage() {
   const pendingCount = vendors.filter(v => !v.approved).length;
 
   return (
-    <AdminGuard>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 p-4 md:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Header Section */}
@@ -368,6 +366,5 @@ export default async function AdminVendorsPage() {
           </div>
         </div>
       </div>
-    </AdminGuard>
   );
 }

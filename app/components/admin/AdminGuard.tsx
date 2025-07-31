@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "@/app/hooks/useAuthState";
+import { ADMIN_EMAIL } from "@/app/lib/admin-config";
 
 // Import the same hook used by Navbar
 import { useAdminStatus } from "@/app/hooks/useAdminStatus";
@@ -42,7 +43,7 @@ export function AdminGuard({ children }: AdminGuardProps) {
       isAdmin
     });
     
-    const ADMIN_EMAIL = "alexsouthflow3@gmail.com";
+    // Using imported ADMIN_EMAIL from central config
     const directEmailCheck = user?.email === ADMIN_EMAIL;
     
     console.log("AdminGuard: Detailed check", { 
@@ -85,7 +86,6 @@ export function AdminGuard({ children }: AdminGuardProps) {
   }
   
   // If admin, show content - use both hook and direct email check
-  const ADMIN_EMAIL = "alexsouthflow3@gmail.com";
   const isAdminEmail = user?.email === ADMIN_EMAIL;
   
   if (user && (isAdmin || isAdminEmail)) {
