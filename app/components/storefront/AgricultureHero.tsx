@@ -37,7 +37,11 @@ interface AgricultureHeroProps {
 
 export function AgricultureHero({ stats }: AgricultureHeroProps) {
   const { user, isAuthenticated } = useSafeAuth();
-  const { isAdmin } = useAdminStatus();
+  const { isAdmin, isLoading: adminLoading } = useAdminStatus();
+  
+  // Debug logging for admin status
+  console.log('AgricultureHero - Admin status:', { isAdmin, adminLoading, isAuthenticated, user: user?.email });
+  
   return (
     <>
       <div className="relative overflow-hidden min-h-[85vh] sm:min-h-[80vh] md:h-[70vh] flex items-center w-full bg-white">
@@ -157,8 +161,8 @@ export function AgricultureHero({ stats }: AgricultureHeroProps) {
                   </Link>
                 </Button>
                 
-                {/* Only show "Become a Vendor" button if user is not an admin */}
-                {!isAdmin && (
+                {/* Only show "Become a Vendor" button if user is not an admin and not loading */}
+                {!isAdmin && !adminLoading && (
                   <Button 
                     asChild 
                     variant="outline" 

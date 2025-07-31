@@ -36,6 +36,7 @@ import {
 import { useCart } from "@/app/context/CartContext";
 import { useAuthState } from "@/app/hooks/useAuthState";
 import { useVendorStatus } from "@/app/hooks/useVendorStatus";
+import { useAdminStatus } from "@/app/hooks/useAdminStatus";
 
 // User interface for type safety
 interface AuthUser {
@@ -91,9 +92,11 @@ export function Navbar() {
   const user = rawUser as AuthUser | null;
   const { itemCount } = useCart();
   const { isVendor, loading: vendorLoading } = useVendorStatus();
+  const { isAdmin, isLoading: adminLoading } = useAdminStatus();
 
   // Debug logging
   console.log('Navbar - User state:', { user, isLoading, isAuthenticated: !!user });
+  console.log('Navbar - Admin/Vendor status:', { isAdmin, adminLoading, isVendor, vendorLoading });
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white">
@@ -220,7 +223,7 @@ export function Navbar() {
           <div className="w-64">
             <SearchBar />
           </div>
-          {!isVendor && !vendorLoading && (
+          {!isVendor && !vendorLoading && !isAdmin && !adminLoading && (
             <Link 
               href="/vendors/register" 
               className="relative inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-full shadow-lg hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 ease-in-out hover:shadow-xl group overflow-hidden"
@@ -320,71 +323,72 @@ export function Navbar() {
                         <ChevronDown className="w-4 h-4" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent 
-                        className="bg-white border border-gray-200 shadow-lg rounded-xl p-2 min-w-[220px] max-h-[300px] overflow-y-auto" 
-                        align="start"
-                        side="right"
-                        sideOffset={10}
+                        className="bg-white border border-gray-200 shadow-lg rounded-xl p-2 min-w-[280px] max-h-[400px] overflow-y-auto mx-4" 
+                        align="center"
+                        side="bottom"
+                        sideOffset={8}
+                        alignOffset={0}
                       >
                         <DropdownMenuItem asChild>
                           <Link 
                             href="/verticals/grobiogas" 
-                            className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
+                            className="w-full px-4 py-3 text-base text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
                           >
-                            <span className="text-emerald-500 mr-2">🌿</span>
+                            <span className="text-emerald-500 mr-3 text-lg">🌿</span>
                             GroBiogas
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link 
                             href="/verticals/grochick" 
-                            className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
+                            className="w-full px-4 py-3 text-base text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
                           >
-                            <span className="text-emerald-500 mr-2">🐣</span>
+                            <span className="text-emerald-500 mr-3 text-lg">🐣</span>
                             GroChick
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link 
                             href="/verticals/grocommodities" 
-                            className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
+                            className="w-full px-4 py-3 text-base text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
                           >
-                            <span className="text-emerald-500 mr-2">📦</span>
+                            <span className="text-emerald-500 mr-3 text-lg">📦</span>
                             GroCommodities
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link 
                             href="/verticals/groconsulting" 
-                            className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
+                            className="w-full px-4 py-3 text-base text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
                           >
-                            <span className="text-emerald-500 mr-2">💡</span>
+                            <span className="text-emerald-500 mr-3 text-lg">💡</span>
                             GroConsulting
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link 
                             href="/verticals/grodriver" 
-                            className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
+                            className="w-full px-4 py-3 text-base text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
                           >
-                            <span className="text-emerald-500 mr-2">🚚</span>
+                            <span className="text-emerald-500 mr-3 text-lg">🚚</span>
                             GroDriver
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link 
                             href="/verticals/grofeeds" 
-                            className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
+                            className="w-full px-4 py-3 text-base text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
                           >
-                            <span className="text-emerald-500 mr-2">🌾</span>
+                            <span className="text-emerald-500 mr-3 text-lg">🌾</span>
                             GroFeeds
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link 
                             href="/verticals/grofresh" 
-                            className="w-full px-3 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
+                            className="w-full px-4 py-3 text-base text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors duration-200 cursor-pointer flex items-center"
                           >
-                            <span className="text-emerald-500 mr-2">🥬</span>
+                            <span className="text-emerald-500 mr-3 text-lg">🥬</span>
                             GroFresh
                           </Link>
                         </DropdownMenuItem>
@@ -398,7 +402,7 @@ export function Navbar() {
                       Marketplace
                     </Link>
                   </div>
-                  {!isVendor && !vendorLoading && (
+                  {!isVendor && !vendorLoading && !isAdmin && !adminLoading && (
                     <Link 
                       href="/vendors/register" 
                       className="relative inline-flex items-center justify-center w-full px-6 py-3 text-base font-semibold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl shadow-lg hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 ease-in-out hover:shadow-xl group overflow-hidden mb-6"

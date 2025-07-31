@@ -20,8 +20,11 @@ export function useAdminStatus(): AdminStatusState {
 
   useEffect(() => {
     async function checkAdminStatus() {
-      // Wait for auth to complete
-      if (authLoading) return;
+      // Don't check if auth is still loading
+      if (authLoading) {
+        setState(prev => ({ ...prev, isLoading: true }));
+        return;
+      }
       
       // If not authenticated, definitely not admin
       if (!isAuthenticated || !user?.id) {
@@ -33,6 +36,7 @@ export function useAdminStatus(): AdminStatusState {
         return;
       }
 
+      // Only make API call if user is authenticated
       try {
         setState(prev => ({ ...prev, isLoading: true, error: null }));
         
@@ -40,10 +44,18 @@ export function useAdminStatus(): AdminStatusState {
         
         if (response.ok) {
           const data = await response.json();
+          console.log('Admin status check result:', data);
           setState({
             isAdmin: data.adminStatus || false,
             isLoading: false,
             error: null,
+          });
+        } else if (response.status === 401) {
+          // User is not authenticated on server side
+          setState({
+            isAdmin: false,
+            isLoading: false,
+            error: 'Not authenticated',
           });
         } else {
           setState({
@@ -53,6 +65,7 @@ export function useAdminStatus(): AdminStatusState {
           });
         }
       } catch (error) {
+        console.error('Error checking admin status:', error);
         setState({
           isAdmin: false,
           isLoading: false,
