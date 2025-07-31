@@ -17,6 +17,8 @@ import { useState, useEffect } from "react";
 import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { ADMIN_EMAIL } from "@/app/lib/admin-config";
+import Image from "next/image";
+import Link from "next/link";
 
 export function AdminHeader() {
   const [mounted, setMounted] = useState(false);
@@ -30,11 +32,16 @@ export function AdminHeader() {
     const fetchUserProfile = async () => {
       if (user?.email) {
         try {
+          console.log('Fetching admin profile data for:', user.email);
           const response = await fetch('/api/user/profile');
           if (response.ok) {
             const data = await response.json();
             setUserData(data);
-            console.log('Admin profile data fetched:', data);
+            console.log('Admin profile data fetched successfully:', data);
+          } else {
+            console.error('Failed to fetch profile. Status:', response.status);
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
           }
         } catch (error) {
           console.error('Error fetching admin profile:', error);
@@ -86,38 +93,65 @@ export function AdminHeader() {
   });
 
   return (
-    <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-slate-200/50 dark:border-slate-700/50 h-16 flex items-center justify-end px-6 gap-4 sticky top-0 z-40">
-      {/* Theme Toggle */}
-      <AdminThemeToggle />
-      
-      {/* User Profile Dropdown */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button 
-            variant="ghost" 
-            className="h-10 gap-3 px-3 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-300 hover:scale-105"
-          >
-            <Avatar className="h-8 w-8 ring-2 ring-white/20 shadow-lg">
-              <AvatarImage 
-                src={userAvatar} 
-                alt={userName || 'Admin'} 
-                className="object-cover"
-              />
-              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white text-sm font-semibold">
-                {getInitials(userName)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="hidden md:flex flex-col items-start">
-              <span className="text-sm font-medium text-slate-900 dark:text-white">
-                {userName}
-              </span>
-              <span className="text-xs text-slate-600 dark:text-slate-400 flex items-center">
-                <Crown className="h-3 w-3 mr-1 text-purple-500" />
-                {userEmail || 'Administrator'}
-              </span>
-            </div>
-          </Button>
-        </DropdownMenuTrigger>
+    <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-slate-200/50 dark:border-slate-700/50 h-16 flex items-center justify-between px-6 gap-4 sticky top-0 z-40">
+      {/* Logo */}
+      <Link href="/admin" className="flex items-center">
+        <div className="relative w-[120px] h-[40px]">
+          <Image
+            src="/gigalogo.jpeg"
+            alt="Giga Logo"
+            fill
+            className="object-contain block dark:hidden"
+            priority
+            quality={90}
+            sizes="120px"
+          />
+          <Image
+            src="/gigadarklogo.jpeg"
+            alt="Giga Logo"
+            fill
+            className="object-contain hidden dark:block"
+            priority
+            quality={90}
+            sizes="120px"
+          />
+        </div>
+        <span className="ml-2 font-bold text-lg bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 text-transparent bg-clip-text hidden md:inline">
+          Admin Portal
+        </span>
+      </Link>
+
+      <div className="flex items-center gap-4">
+        {/* Theme Toggle */}
+        <AdminThemeToggle />
+        
+        {/* User Profile Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="ghost" 
+              className="h-10 gap-3 px-3 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-300 hover:scale-105"
+            >
+              <Avatar className="h-8 w-8 ring-2 ring-white/20 shadow-lg">
+                <AvatarImage 
+                  src={userAvatar} 
+                  alt={userName || 'Admin'} 
+                  className="object-cover"
+                />
+                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white text-sm font-semibold">
+                  {getInitials(userName)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="hidden md:flex flex-col items-start">
+                <span className="text-sm font-medium text-slate-900 dark:text-white">
+                  {userName}
+                </span>
+                <span className="text-xs text-slate-600 dark:text-slate-400">
+                  {userEmail}
+                </span>
+              </div>
+            </Button>
+          </DropdownMenuTrigger>
         <DropdownMenuContent 
           align="end" 
           className="w-64 bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 shadow-xl rounded-xl"
@@ -145,14 +179,15 @@ export function AdminHeader() {
                 </p>
                 <div className="flex items-center gap-2 mt-1">
                   <Mail className="h-3 w-3 text-slate-500 dark:text-slate-400" />
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 truncate max-w-[160px]">
                     {userEmail}
                   </p>
                 </div>
                 <Badge 
                   variant="secondary" 
-                  className="mt-2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-none text-xs"
+                  className="mt-2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-none text-xs flex items-center gap-1"
                 >
+                  <Crown className="h-3 w-3" />
                   System Administrator
                 </Badge>
               </div>
@@ -184,6 +219,7 @@ export function AdminHeader() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      </div>
     </header>
   );
 }
