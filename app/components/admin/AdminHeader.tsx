@@ -1,6 +1,6 @@
 "use client";
 
-import { User, LogOut, Settings, Mail } from "lucide-react";
+import { User, LogOut, Settings, Mail, Crown, Shield } from "lucide-react";
 import { AdminThemeToggle } from "./AdminThemeToggle";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,11 +20,32 @@ import { ADMIN_EMAIL } from "@/app/lib/admin-config";
 
 export function AdminHeader() {
   const [mounted, setMounted] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
   const { user, isLoading } = useKindeBrowserClient();
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    
+    // Fetch additional user profile data
+    const fetchUserProfile = async () => {
+      if (user?.email) {
+        try {
+          const response = await fetch('/api/user/profile');
+          if (response.ok) {
+            const data = await response.json();
+            setUserData(data);
+            console.log('Admin profile data fetched:', data);
+          }
+        } catch (error) {
+          console.error('Error fetching admin profile:', error);
+        }
+      }
+    };
+    
+    if (user) {
+      fetchUserProfile();
+    }
+  }, [user]);
 
   if (!mounted || isLoading) {
     return (
@@ -36,6 +57,8 @@ export function AdminHeader() {
   }
 
   const getInitials = (name: string) => {
+    if (!name || name.trim() === '') return 'AD';
+    
     return name
       .split(' ')
       .map(word => word[0])
@@ -45,9 +68,9 @@ export function AdminHeader() {
   };
 
   // Get actual user info and use meaningful fallbacks only if needed
-  const firstName = user?.given_name || '';
-  const lastName = user?.family_name || '';
-  const userName = `${firstName} ${lastName}`.trim();
+  const firstName = user?.given_name || userData?.firstName || '';
+  const lastName = user?.family_name || userData?.lastName || '';
+  const userName = `${firstName} ${lastName}`.trim() || 'Administrator';
   const userEmail = user?.email || '';
   const userAvatar = user?.picture || '';
   const isAdmin = userEmail === ADMIN_EMAIL;
@@ -58,7 +81,8 @@ export function AdminHeader() {
     userEmail, 
     adminEmail: ADMIN_EMAIL,
     isAdmin,
-    user 
+    user,
+    userData 
   });
 
   return (
@@ -73,36 +97,50 @@ export function AdminHeader() {
             variant="ghost" 
             className="h-10 gap-3 px-3 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-300 hover:scale-105"
           >
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={userAvatar} alt={userName || 'User'} />
-              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-600 text-white text-sm font-semibold">
-                {userName ? getInitials(userName) : 'AD'}
+            <Avatar className="h-8 w-8 ring-2 ring-white/20 shadow-lg">
+              <AvatarImage 
+                src={userAvatar} 
+                alt={userName || 'Admin'} 
+                className="object-cover"
+              />
+              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white text-sm font-semibold">
+                {getInitials(userName)}
               </AvatarFallback>
             </Avatar>
             <div className="hidden md:flex flex-col items-start">
               <span className="text-sm font-medium text-slate-900 dark:text-white">
-                {userName || 'Loading...'}
+                {userName}
               </span>
-              <span className="text-xs text-slate-600 dark:text-slate-400">
-                {userEmail || (isLoading ? 'Loading...' : 'No email available')}
+              <span className="text-xs text-slate-600 dark:text-slate-400 flex items-center">
+                <Crown className="h-3 w-3 mr-1 text-purple-500" />
+                {userEmail || 'Administrator'}
               </span>
             </div>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent 
           align="end" 
-          className="w-64 bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 shadow-xl"
+          className="w-64 bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 shadow-xl rounded-xl"
         >
           <DropdownMenuLabel className="p-4">
             <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={userAvatar} alt={userName} />
-                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-600 text-white">
-                  {getInitials(userName)}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative">
+                <Avatar className="h-10 w-10 ring-2 ring-purple-200 dark:ring-purple-900">
+                  <AvatarImage 
+                    src={userAvatar} 
+                    alt={userName} 
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white">
+                    {getInitials(userName)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="absolute -bottom-1 -right-1 bg-purple-500 rounded-full p-1 shadow-lg">
+                  <Crown className="h-3 w-3 text-white" />
+                </div>
+              </div>
               <div>
-                <p className="text-sm font-medium text-slate-900 dark:text-white">
+                <p className="text-sm font-bold text-slate-900 dark:text-white">
                   {userName}
                 </p>
                 <div className="flex items-center gap-2 mt-1">
@@ -113,9 +151,9 @@ export function AdminHeader() {
                 </div>
                 <Badge 
                   variant="secondary" 
-                  className="mt-2 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-400 text-xs"
+                  className="mt-2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-none text-xs"
                 >
-                  Administrator
+                  System Administrator
                 </Badge>
               </div>
             </div>
